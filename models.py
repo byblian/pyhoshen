@@ -93,8 +93,7 @@ class PollsOnlyModel(PollsModel):
             testval=np.zeros([self.num_days, self.num_parties]))
             
         # The random walk itself is a cumulative sum of the innovations.
-        self.walk = pm.Deterministic('walk', 
-            T.cumsum(self.innovations, axis=0))
+        self.walk = pm.Deterministic('walk', self.innovations.cumsum(axis=0))
 
         # The modeled support of the various parties over time is the sum
         # of both the election-day votes and the innovations that led up to it.
@@ -111,7 +110,8 @@ class PollsOnlyModel(PollsModel):
         # relevant days
         def expected_poll_outcome(p):
             if p.num_poll_days > 1:
-                return T.mean([ self.walk[d] for d in range(p.end_day, p.start_day + 1)], axis=0)
+                poll_days = [ d for d in range(p.end_day, p.start_day + 1)]
+                return self.walk[poll_days].mean(axis=0)
             else:
                 return self.walk[p.start_day]
         
