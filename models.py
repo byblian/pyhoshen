@@ -8,7 +8,6 @@ import pymc3 as pm
 import theano.tensor as T
 import datetime
 import itertools
-import abc
 
 from . import polls
 from . import configuration
@@ -16,207 +15,11 @@ from . import configuration
 def get_version():
     return 365
 
-class PollsModel(metaclass=abc.ABCMeta):
-    """
-    A base representation of the election campaign as it relates to the polls.
-    """
-
-    def likelihood(self, key, polls, test_results):
-        """
-        The Multivariate Student-T variable that models the polls.
-        
-        The polls are modeled as a MvStudentT distribution which allows to
-        take into consideration the number of people polled as well as the
-        cholesky-covariance matrix that is central to the model.
-        """
-        return pm.MvStudentT(
-            self.polls_var_name(key, polls),
-            nu=[ p.num_polled - 1 for p in polls ],
-            mu=self.mu(key, polls),
-            chol=self.chol(key, polls),
-            testval=test_results,
-            shape=[len(polls), self.num_parties],
-            observed=[ p.percentages for p in polls ])
-
-    @abc.abstractmethod
-    def group_poll(self, p):
-        """
-        The key function used to group polls together. A separate
-        MvStudentT variable will be created for each group.
-        """
-        raise NotImplementedError('PollsModel::group_poll()')
-        
-    @abc.abstractmethod
-    def polls_var_name(self, key, polls):
-        """
-        The unique name of a poll group, used to name random variables.
-        """
-        raise NotImplementedError('PollsModel::polls_var_name()')
-        
-    @abc.abstractmethod
-    def mu(self, key, polls):
-        """
-        The poll group's mu for the MvStudentT variable.
-        """
-        raise NotImplementedError('PollsModel::mu()')
-
-    @abc.abstractmethod
-    def chol(self, key, polls):
-        """
-        The poll group's cholesky matrix for the MvStudentT variable.
-        """
-        raise NotImplementedError('PollsModel::chol()')
-
-class PollsOnlyModel(PollsModel):
-    """
-    A PollsModel that models party support as a cumulative sum of multivariate
-    normal innovations governed by a given covariance matrix. The polls directly
-    represent this support.
-    """
-    
-    def __init__(self, num_days, num_parties, cholesky_matrix, votes):
-        self.num_days = num_days
-        self.num_parties = num_parties
-        self.cholesky_matrix = cholesky_matrix
-        self.votes = votes
-        
-        # The innovations are multivariate normal with the same
-        # covariance/cholesky matrix as the polls' MvStudentT
-        # variable. The assumption is that the parties' covariance
-        # is invariant throughout the election campaign and
-        # influences polls, evolving support and election day
-        # vote.
-        self.innovations = pm.MvNormal('innovations',
-            mu=np.zeros([self.num_days, self.num_parties]),
-            chol=self.cholesky_matrix,
-            shape=[self.num_days, self.num_parties],
-            testval=np.zeros([self.num_days, self.num_parties]))
-            
-        # The random walk itself is a cumulative sum of the innovations.
-        self.walk = pm.Deterministic('walk', self.innovations.cumsum(axis=0))
-
-        # The modeled support of the various parties over time is the sum
-        # of both the election-day votes and the innovations that led up to it.
-        # The support at day 0 is the election day vote.
-        self.support = pm.Deterministic('support', self.votes + self.walk)
-
-    def group_poll(self, p):
-        # Group polls by number of days, to allow generating a different
-        # cholesky matrix for each.
-        return p.num_poll_days
-    
-    def mu(self, key, polls):
-        # To handle multiple-day polls, we average the party support for the
-        # relevant days
-        def expected_poll_outcome(p):
-            if p.num_poll_days > 1:
-                poll_days = [ d for d in range(p.end_day, p.start_day + 1)]
-                return self.walk[poll_days].mean(axis=0)
-            else:
-                return self.walk[p.start_day]
-        
-        return [ expected_poll_outcome(p) for p in polls ] + self.votes
-
-    def chol(self, key, polls):
-        # Because we average the support over the number of poll days n, we
-        # also need to appropriately factor the cholesky matrix. We assume
-        # no correlation between different days, so the factor is 1/n for 
-        # the variance, and 1/sqrt(n) for the cholesky matrix.
-        return self.cholesky_matrix / np.sqrt(key)
-
-    def polls_var_name(self, key, polls):
-        return 'polls_%d_days' % key
-
-class MultMeanWithVarianceHouseEffectsModel(PollsModel):
-    """
-    A PollsModel that models the polls with a given base model,
-    and models house effects as an optional per-party per-pollster
-    Gamma coefficient multiplied on the mean, and an additional
-    per-poll normal standard deviation, whose scale is distributed
-    by per-pollster HalfCauchy distribution.
-    """
-
-    def __init__(self, num_pollsters, num_parties, num_parties_variance,
-                 base_polls_model, 
-                 include_house_effects = False, pollster_sigma_beta=0.05):
-        
-        self.num_pollsters = num_pollsters
-        self.num_parties = num_parties
-        self.num_parties_variance = num_parties_variance
-        self.base_polls_model = base_polls_model
-        
-        self.support = self.base_polls_model.support
-
-        # Model the coefficient multiplied on the mean as
-        # a Gamma variable per-pollster per-party
-        # To model variance only, without a coefficient 
-        # multiplied on the mean, use 0 for the number of 
-        # parties. In this case, to maintain consistency,
-        # a deterministic variable of the same shape and
-        # value 1 is created.
-        if include_house_effects:
-            self.pollster_house_effects = pm.Gamma(
-                'pollster_house_effects', 1, 1,
-                shape=[self.num_pollsters, self.num_parties])
-            self.pollster_house_effects_eps = pm.HalfCauchy('pollster_house_effects_eps', 0.05)
-            self.pollster_house_effects_avg = pm.Potential('pollster_house_effects_avg',
-                pm.Normal.dist(1, self.pollster_house_effects_eps, shape=self.num_pollsters).logp(
-                    self.pollster_house_effects.prod(axis=1)))
-        else:
-            self.pollster_house_effects = pm.Deterministic(
-                'pollster_house_effects', 
-                T.ones([self.num_pollsters, self.num_parties]))
-            
-        # Model the variance of the pollsters as a HalfCauchy
-        # variable.
-        self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
-            pollster_sigma_beta, shape=[self.num_pollsters, num_parties_variance])
-        
-    def group_poll(self, p):
-        # Use the base polls model's grouping as only the 
-        # mean is modified.
-        return self.base_polls_model.group_poll(p)
-    
-    def mu(self, key, polls):
-        # To simplify the modeling, only the mean is modified
-        # based on the house effects.
-        #
-        # It is modeled as:
-        #   mu ~ N(c_jk * orig_mu, s_j^2)
-        #   s_j ~ HC(pollster_sigma_beta)
-        #
-        # for
-        #   j = pollster_id
-        #   k = party_id
-        #
-        # This is transformed to a non-centered parameterization.
-        # Because only the mean is modified, the same grouping
-        # as the base model can still be used.
-        pollster_ids = [ p.pollster_id for p in polls ]
-        offsets = pm.Normal(
-            'offsets_%s' % self.base_polls_model.polls_var_name(key, polls),
-            0, 1, shape=[len(polls), self.num_parties_variance])
-        
-        return (self.pollster_house_effects[pollster_ids] * 
-                self.base_polls_model.mu(key, polls)
-            + self.pollster_sigmas[pollster_ids] * offsets)
-
-    def chol(self, key, polls):
-        # Use the base polls model's cholesky matrix
-        return self.base_polls_model.chol(key, polls)
-
-    def polls_var_name(self, key, polls):
-        # Use the base polls model's group naming
-        return self.base_polls_model.polls_var_name(key, polls)
-
 class ElectionDynamicsModel(pm.Model):
     """
     A pymc3 model that models the dynamics of an election
     campaign based on the polls, optionally assuming "house
     effects."
-    
-    This is essentially a pymc3 Model subclass that sets up the
-    appropriate PollsModel.
     """
     def __init__(self, name, votes, polls, party_groups,
                  cholesky_matrix, test_results, model_type):
@@ -236,60 +39,169 @@ class ElectionDynamicsModel(pm.Model):
         self.test_results = (polls.get_last_days_average(10)
             if test_results is None else test_results)
 
-        # Create the base polls model. House-effects models
-        # will be optionally set up based on this model.
-        self.polls_model = PollsOnlyModel(self.num_days, self.num_parties, 
-                                          self.cholesky_matrix, self.votes)
+        # The base polls model. House-effects models
+        # are optionally set up based on this model.
 
-        self.innovations = self.polls_model.innovations
-        self.walk = self.polls_model.walk
-        self.support = self.polls_model.support
+        # The innovations are multivariate normal with the same
+        # covariance/cholesky matrix as the polls' MvStudentT
+        # variable. The assumption is that the parties' covariance
+        # is invariant throughout the election campaign and
+        # influences polls, evolving support and election day
+        # vote.
+        self.innovations = pm.MvNormal('innovations',
+            mu=np.zeros([self.num_days, self.num_parties]),
+            chol=self.cholesky_matrix,
+            shape=[self.num_days, self.num_parties],
+            testval=np.zeros([self.num_days, self.num_parties]))
+            
+        # The random walk itself is a cumulative sum of the innovations.
+        self.walk = pm.Deterministic('walk', self.innovations.cumsum(axis=0))
+
+        # The modeled support of the various parties over time is the sum
+        # of both the election-day votes and the innovations that led up to it.
+        # The support at day 0 is the election day vote.
+        self.support = pm.Deterministic('support', self.votes + self.walk)
         
+        # Group polls by number of days. This is necessary to allow generating
+        # a different cholesky matrix for each. This corresponds to the 
+        # average of the modeled support used for multi-day polls.
+        group_polls = lambda poll: poll.num_poll_days
+
+        # Group the polls and create the likelihood variable.
+        self.grouped_polls = [ (num_poll_days, [p for p in polls]) for num_poll_days, polls in
+            itertools.groupby(sorted(self.polls, key=group_polls), group_polls) ]
+            
+        # To handle multiple-day polls, we average the party support for the
+        # relevant days
+        def expected_poll_outcome(p):
+            if p.num_poll_days > 1:
+                poll_days = [ d for d in range(p.end_day, p.start_day + 1)]
+                return self.walk[poll_days].mean(axis=0)
+            else:
+                return self.walk[p.start_day]
+        
+        mus = { num_poll_days: [ expected_poll_outcome(p) for p in polls ] + self.votes
+                for num_poll_days, polls in self.grouped_polls }
+
+        self.mus = self.create_house_effects(model_type, mus)
+
+        self.likelihoods = [
+            # The Multivariate Student-T variable that models the polls.
+            #
+            # The polls are modeled as a MvStudentT distribution which allows to
+            # take into consideration the number of people polled as well as the
+            # cholesky-covariance matrix that is central to the model.
+
+            # Because we average the support over the number of poll days n, we
+            # also need to appropriately factor the cholesky matrix. We assume
+            # no correlation between different days, so the factor is 1/n for 
+            # the variance, and 1/sqrt(n) for the cholesky matrix.
+            pm.MvStudentT(
+                'polls_%d_days' % num_poll_days,
+                nu=[ p.num_polled - 1 for p in polls ],
+                mu=mus[num_poll_days],
+                chol=self.cholesky_matrix / np.sqrt(num_poll_days),
+                testval=test_results,
+                shape=[len(polls), self.num_parties],
+                observed=[ p.percentages for p in polls ])
+            for num_poll_days, polls in self.grouped_polls ]
+        
+    def create_house_effects(self, model_type, mus, pollster_sigma_beta = 0.05):
         # Create the appropriate house-effects model, if needed.
-        if model_type == 'mult-mean-variance':
-            self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, self.num_parties, 1, self.polls_model,
-                include_house_effects = True)
-            
-            self.pollster_house_effects = self.polls_model.pollster_house_effects
-            self.pollster_sigmas = self.polls_model.pollster_sigmas
-        elif model_type == 'single-mult-mean-variance':
-            self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, 1, 1, self.polls_model,
-                include_house_effects = True)
-            
-            self.pollster_house_effects = self.polls_model.pollster_house_effects
-            self.pollster_sigmas = self.polls_model.pollster_sigmas
+        if model_type == 'polls-only':
+            return mus
+        elif model_type == 'mult-mean-variance':
+            # Model the coefficient multiplied on the mean as
+            # a Gamma variable per-pollster per-party
+
+            self.pollster_house_effects = pm.Gamma(
+                'pollster_house_effects', 1, 1,
+                shape=[self.num_pollsters, self.num_parties])
+            self.pollster_house_effects_eps = pm.HalfCauchy('pollster_house_effects_eps', 0.05)
+            self.pollster_house_effects_avg = pm.Potential('pollster_house_effects_avg',
+                pm.Normal.dist(1, self.pollster_house_effects_eps, shape=self.num_pollsters).logp(
+                    self.pollster_house_effects.prod(axis=1)))
+
+            # Model the variance of the pollsters as a HalfCauchy
+            # variable.
+            self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
+                pollster_sigma_beta, shape=[self.num_pollsters, 1])
+    
+            # To simplify the modeling, only the mean is modified
+            # based on the house effects.
+            #
+            # It is modeled as:
+            #   mu ~ N(c_jk * orig_mu, s_j^2)
+            #   s_j ~ HC(pollster_sigma_beta)
+            #
+            # for
+            #   j = pollster_id
+            #   k = party_id
+            #
+            # This is transformed to a non-centered parameterization.
+            # Because only the mean is modified, the same grouping
+            # as the base model can still be used.
+            def create_mult_mean_variance_mu(num_poll_days, polls):
+                pollster_ids = [ p.pollster_id for p in polls ]
+                offsets = pm.Normal(
+                    'offsets_%d' % num_poll_days,
+                    0, 1, shape=[len(polls), 1])
+                
+                return (self.pollster_house_effects[pollster_ids] * mus[num_poll_days]
+                    + self.pollster_sigmas[pollster_ids] * offsets)
+                
+            return { num_poll_days: create_mult_mean_variance_mu(num_poll_days, polls)
+                     for num_poll_days, polls in self.grouped_polls }
+
         elif model_type == 'variance':
-            self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, self.num_parties, 1, self.polls_model,
-                include_house_effects = False)
-            
-            self.pollster_house_effects = self.polls_model.pollster_house_effects
-            self.pollster_sigmas = self.polls_model.pollster_sigmas
+            self.pollster_house_effects = pm.Deterministic(
+                'pollster_house_effects', 
+                T.ones([self.num_pollsters, self.num_parties]))
+
+            # Model the variance of the pollsters as a HalfCauchy
+            # variable.
+            self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
+                pollster_sigma_beta, shape=[self.num_pollsters, 1])
+    
+            def create_variance_mu(num_poll_days, polls):
+                pollster_ids = [ p.pollster_id for p in polls ]
+                offsets = pm.Normal(
+                    'offsets_%d' % num_poll_days,
+                    0, 1, shape=[len(polls), 1])
+                
+                return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
+                
+            return { num_poll_days: create_mult_mean_variance_mu(num_poll_days, polls)
+                     for num_poll_days, polls in self.grouped_polls }
+
         elif model_type == 'party-variance':
-            self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, self.num_parties, self.num_parties, self.polls_model,
-                include_house_effects = False)
-            
-            self.pollster_house_effects = self.polls_model.pollster_house_effects
-            self.pollster_sigmas = self.polls_model.pollster_sigmas
-        elif model_type != 'polls-only':
+            self.pollster_house_effects = pm.Deterministic(
+                'pollster_house_effects', 
+                T.ones([self.num_pollsters, self.num_parties]))
+
+            # Model the variance of the pollsters as a HalfCauchy
+            # variable.
+            self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
+                pollster_sigma_beta, shape=[self.num_pollsters, self.num_parties])
+    
+            def create_party_variance_mu(num_poll_days, polls):
+                pollster_ids = [ p.pollster_id for p in polls ]
+                offsets = pm.Normal(
+                    'offsets_%d' % num_poll_days,
+                    0, 1, shape=[len(polls), self.num_parties])
+                
+                return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
+                
+            return { num_poll_days: create_mult_mean_variance_mu(num_poll_days, polls)
+                     for num_poll_days, polls in self.grouped_polls }
+
+        else:
             raise ValueError("expected model_type '%s' to be one of %s" % 
                 (model_type, ', '.join(['polls-only', 
                                         'mult-mean-variance',
-                                        'single-mult-mean-variance',
-                                        'variance'])))
-
-        # Group the polls and create the likelihood variable.
-        self.grouped_polls = [ (k, [p for p in polls]) for k, polls in
-            itertools.groupby(
-                sorted(self.polls, key=self.polls_model.group_poll), 
-                self.polls_model.group_poll) ]
-            
-        self.likelihoods = [
-            self.polls_model.likelihood(key, polls, test_results)
-            for key, polls in self.grouped_polls ]
+                                        'variance',
+                                        'party-variance'])))
+        
         
 class ElectionCycleModel(pm.Model):
     """
