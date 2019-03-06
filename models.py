@@ -136,12 +136,16 @@ class MultMeanWithVarianceHouseEffectsModel(PollsModel):
     by per-pollster HalfCauchy distribution.
     """
 
-    def __init__(self, num_pollsters, num_parties, 
-                 base_polls_model, pollster_sigma_beta=0.05):
+    def __init__(self, num_pollsters, num_parties, num_parties_variance,
+                 base_polls_model, 
+                 include_house_effects = False, pollster_sigma_beta=0.05):
         
         self.num_pollsters = num_pollsters
         self.num_parties = num_parties
+        self.num_parties_variance = num_parties_variance
         self.base_polls_model = base_polls_model
+        
+        self.support = self.base_polls_model.support
 
         # Model the coefficient multiplied on the mean as
         # a Gamma variable per-pollster per-party
@@ -150,19 +154,23 @@ class MultMeanWithVarianceHouseEffectsModel(PollsModel):
         # parties. In this case, to maintain consistency,
         # a deterministic variable of the same shape and
         # value 1 is created.
-        if self.num_parties > 0:
+        if include_house_effects:
             self.pollster_house_effects = pm.Gamma(
                 'pollster_house_effects', 1, 1,
                 shape=[self.num_pollsters, self.num_parties])
+            self.pollster_house_effects_eps = pm.HalfCauchy('pollster_house_effects_eps', 0.05)
+            self.pollster_house_effects_avg = pm.Potential('pollster_house_effects_avg',
+                pm.Normal.dist(1, self.pollster_house_effects_eps, shape=self.num_pollsters).logp(
+                    self.pollster_house_effects.prod(axis=1)))
         else:
             self.pollster_house_effects = pm.Deterministic(
-                'pollster_house_effects', 1,
-                shape=[self.num_pollsters, self.num_parties])
+                'pollster_house_effects', 
+                T.ones([self.num_pollsters, self.num_parties]))
             
         # Model the variance of the pollsters as a HalfCauchy
         # variable.
         self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
-            pollster_sigma_beta, shape=[self.num_pollsters])
+            pollster_sigma_beta, shape=[self.num_pollsters, num_parties_variance])
         
     def group_poll(self, p):
         # Use the base polls model's grouping as only the 
@@ -187,7 +195,7 @@ class MultMeanWithVarianceHouseEffectsModel(PollsModel):
         pollster_ids = [ p.pollster_id for p in polls ]
         offsets = pm.Normal(
             'offsets_%s' % self.base_polls_model.polls_var_name(key, polls),
-            0, 1, shape=[len(polls), 1])
+            0, 1, shape=[len(polls), self.num_parties_variance])
         
         return (self.pollster_house_effects[pollster_ids] * 
                 self.base_polls_model.mu(key, polls)
@@ -240,19 +248,29 @@ class ElectionDynamicsModel(pm.Model):
         # Create the appropriate house-effects model, if needed.
         if model_type == 'mult-mean-variance':
             self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, self.num_parties, self.polls_model)
+                self.num_pollsters, self.num_parties, 1, self.polls_model,
+                include_house_effects = True)
             
             self.pollster_house_effects = self.polls_model.pollster_house_effects
             self.pollster_sigmas = self.polls_model.pollster_sigmas
         elif model_type == 'single-mult-mean-variance':
             self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, 1, self.polls_model)
+                self.num_pollsters, 1, 1, self.polls_model,
+                include_house_effects = True)
             
             self.pollster_house_effects = self.polls_model.pollster_house_effects
             self.pollster_sigmas = self.polls_model.pollster_sigmas
         elif model_type == 'variance':
             self.polls_model = MultMeanWithVarianceHouseEffectsModel(
-                self.num_pollsters, 0, self.polls_model)
+                self.num_pollsters, self.num_parties, 1, self.polls_model,
+                include_house_effects = False)
+            
+            self.pollster_house_effects = self.polls_model.pollster_house_effects
+            self.pollster_sigmas = self.polls_model.pollster_sigmas
+        elif model_type == 'party-variance':
+            self.polls_model = MultMeanWithVarianceHouseEffectsModel(
+                self.num_pollsters, self.num_parties, self.num_parties, self.polls_model,
+                include_house_effects = False)
             
             self.pollster_house_effects = self.polls_model.pollster_house_effects
             self.pollster_sigmas = self.polls_model.pollster_sigmas
