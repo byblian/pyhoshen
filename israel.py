@@ -16,6 +16,9 @@ import datetime
 def get_version():
     return 16
 
+def strpdate(d):
+    return datetime.datetime.strptime(d, '%d/%m/%Y').date()
+
 class IsraeliElectionForecastModel(models.ElectionForecastModel):
     """
     A class that encapsulates computations specific to the Israeli Election
@@ -31,7 +34,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         Forecast day is considered day-index 0, and the day index increases
         for each day beforehand.
         """
-        return (self.forecast_model.forecast_day - datetime.datetime.strptime(d, '%d/%m/%Y')).days
+        return (self.forecast_model.forecast_day - strpdate(d)).days
     
     def create_surplus_matrices(self):
         """
@@ -296,7 +299,6 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         import matplotlib.pyplot as plt
         import matplotlib.ticker as ticker
         import matplotlib.dates as mdates
-        import datetime
         from bidi import algorithm as bidialg
     
         def get_dimensions(n):
@@ -332,7 +334,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             party_config = fe.config['parties'][fe.party_ids[party]]
             
             if 'created' in party_config:
-                days_to_show = (fe.forecast_day - datetime.datetime.strptime(party_config['created'], '%d/%m/%Y')).days
+                days_to_show = (fe.forecast_day - strpdate(party_config['created'])).days
             else:
                 days_to_show = fe.num_days
 

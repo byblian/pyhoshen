@@ -312,8 +312,7 @@ class ElectionForecastModel(pm.Model):
         
         # Use the election day if the forecast day was not provided
         if forecast_day is None:
-            forecast_day = datetime.datetime.strptime(cycle_config['election_day'], 
-                                                      '%d/%m/%Y')
+            forecast_day = datetime.datetime.strptime(cycle_config['election_day'], '%d/%m/%Y').date()
 
         # Multiple poll datasets are not yet supported at this
         # interface so use the first dataset ('-0')

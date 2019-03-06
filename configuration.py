@@ -65,7 +65,7 @@ class Configuration:
                 if extension == '.csv':
                     parse_dates = data['parse_dates'] if 'parse_dates' in data else False
                     if 'date_format' in data:
-                        date_parser = lambda x: datetime.datetime.strptime(x, data['date_format'])
+                        date_parser = lambda x: datetime.datetime.strptime(x, data['date_format']).date()
                     else:
                         date_parser = None
                     encoding = data['encoding'] if 'encoding' in data else None
