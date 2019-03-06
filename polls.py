@@ -1,7 +1,7 @@
 import numpy as np
 
 def get_version():
-    return 6
+    return 7
 
 class Poll:
     def __init__(self, poll_id, num_polled, start_day, num_poll_days, percentages, pollster_id):
@@ -37,7 +37,7 @@ class ElectionPolls:
         assert len(missing_parties) == 0, "parties %s are missing for %s" % (str(missing_parties), str(forecast_day))
         for index, poll in polls_dataset.iterrows():
             percentages = poll[self.party_ids]
-            pollster = poll['pollster']
+            pollster = poll['pollster'] if 'pollster' in poll else poll['poller']
             poll_id = poll['id']
             num_polled = poll['num_polled']
             num_poll_days = poll['num_days']
