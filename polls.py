@@ -41,7 +41,7 @@ class ElectionPolls:
             poll_id = poll['id']
             num_polled = poll['num_polled']
             num_poll_days = poll['num_days']
-            start_day = day_index(poll['start_date'])
+            start_day = day_index(poll['start_date'].to_pydatetime().date())
 
             if start_day - num_poll_days + 1 >= 0 and start_day < self.num_days:
                 assert len(percentages) == self.num_parties, "percentages list does not match"
