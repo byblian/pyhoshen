@@ -94,7 +94,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           moded_t = T.switch(T.eq(joint_moded_both_t, 0), 0, votes_t / (initial_seats_t + 1))
           added_seats = T.eq(moded_t, moded_t.max(0)) * has_seats_t
           joint_added = initial_seats_t.sum(1) + added_seats.sum(1).astype("int64")
-          return joint_seats * non_joint + joint_added * is_joint_t
+          return joint_seats * non_joint + joint_added * is_joint_t * (seats > 0)
         
         # iterate each day of a sample, and compute for each the bader-ofer allocation
         def bader_ofer_fn(seats, votes, surplus_matrices):
