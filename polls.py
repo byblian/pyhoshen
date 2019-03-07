@@ -19,7 +19,7 @@ class ElectionPolls:
     def __init__(self, polls_dataset, party_ids, forecast_day, max_days = None):
 
         def day_index(d):
-            return (forecast_day - d).days
+            return (forecast_day - d.to_pydatetime().date()).days
     
         self.forecast_day = forecast_day
         self.party_ids = [p for p in party_ids]
@@ -41,7 +41,7 @@ class ElectionPolls:
             poll_id = poll['id']
             num_polled = poll['num_polled']
             num_poll_days = poll['num_days']
-            start_day = day_index(poll['start_date'].to_pydatetime().date())
+            start_day = day_index(poll['start_date'])
 
             if start_day - num_poll_days + 1 >= 0 and start_day < self.num_days:
                 assert len(percentages) == self.num_parties, "percentages list does not match"
