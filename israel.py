@@ -29,7 +29,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         
         self.generated_by = 'Generated using pyHoshen © 2019\n'
 
-    def create_logo():
+    def create_logo(self):
       from PIL import Image, ImageDraw, ImageFont
       from io import BytesIO
       import base64
