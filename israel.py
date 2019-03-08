@@ -271,7 +271,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
                 
         fig.text(.5, 1.05, bidialg.get_display('חלוקת המנדטים') if hebrew else 'Mandates Allocation', 
                  ha='center', fontsize='xx-large')
-        fig.figimage(self.create_logo(), 1000, fig.bbox.ymax - 100, zorder=1000)
+        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_pollster_house_effects(self, samples, hebrew = True):
         """
@@ -452,7 +452,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         fig.text(.5, 1.05, bidialg.get_display('התמיכה במפלגות לאורך זמן') if hebrew
                  else 'Party Support over Time', 
                  ha='center', fontsize='xx-large')
-        fig.figimage(self.create_logo(), 1000, fig.bbox.ymax - 100, zorder=1000)
+        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_correlation_matrix(self, correlation_matrix, hebrew=False):
         """
