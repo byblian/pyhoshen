@@ -118,7 +118,8 @@ class ElectionDynamicsModel(pm.Model):
         elif model_type == 'add-mean-variance':
             self.pollster_house_effects = pm.Normal(
                 'pollster_house_effects', 0, 0.05,
-                T.ones([self.num_pollsters, self.num_parties]))
+                shape=[self.num_pollsters, self.num_parties],
+                testval=T.zeros([self.num_pollsters, self.num_parties]))
 
             # Model the variance of the pollsters as a HalfCauchy
             # variable.
@@ -129,7 +130,8 @@ class ElectionDynamicsModel(pm.Model):
                 pollster_ids = [ p.pollster_id for p in polls ]
                 offsets = pm.Normal(
                     'offsets_%d' % num_poll_days,
-                    0, 1, shape=[len(polls), 1])
+                    0, 1, shape=[len(polls), 1],
+                    testval=np.zeros([len(polls), 1]))
                 
                 return (mus[num_poll_days] + 
                         self.pollster_house_effects[pollster_ids] +
@@ -173,7 +175,8 @@ class ElectionDynamicsModel(pm.Model):
                 pollster_ids = [ p.pollster_id for p in polls ]
                 offsets = pm.Normal(
                     'offsets_%d' % num_poll_days,
-                    0, 1, shape=[len(polls), 1])
+                    0, 1, shape=[len(polls), 1],
+                    testval=np.zeros([len(polls), 1]))
                 
                 return (self.pollster_house_effects[pollster_ids] * mus[num_poll_days]
                     + self.pollster_sigmas[pollster_ids] * offsets)
@@ -195,7 +198,8 @@ class ElectionDynamicsModel(pm.Model):
                 pollster_ids = [ p.pollster_id for p in polls ]
                 offsets = pm.Normal(
                     'offsets_%d' % num_poll_days,
-                    0, 1, shape=[len(polls), 1])
+                    0, 1, shape=[len(polls), 1],
+                    testval=np.zeros([len(polls), 1]))
                 
                 return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
                 
@@ -216,7 +220,8 @@ class ElectionDynamicsModel(pm.Model):
                 pollster_ids = [ p.pollster_id for p in polls ]
                 offsets = pm.Normal(
                     'offsets_%d' % num_poll_days,
-                    0, 1, shape=[len(polls), self.num_parties])
+                    0, 1, shape=[len(polls), self.num_parties],
+                    testval=np.zeros([len(polls), self.num_parties]))
                 
                 return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
                 
