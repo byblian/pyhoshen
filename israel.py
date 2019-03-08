@@ -26,6 +26,32 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
     """
     def __init__(self, config, *args, **kwargs):
         super(IsraeliElectionForecastModel, self).__init__(config, *args, **kwargs)
+        
+        self.generated_by = 'Generated using pyHoshen © 2019\n'
+
+    def create_logo():
+      from PIL import Image, ImageDraw, ImageFont
+      from io import BytesIO
+      import base64
+    
+      # https://www.iconfinder.com/icons/1312097/circle_github_outline_social-media_icon
+      github_b64 = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAzFJREFUSImdlc9LY1cYhp/z5WpQb0IEowFpELTmGhAHdFOCy1ZwSl1I+we4nUXBf8KVCN10Ne2yNItMadEZR1wqFhlbN95rGCjWhWAg/sAkJibndDGJxOTGcfru7nnPed7vfueecxVP1NTUVKRcLg8CBIPB88PDw8unrFOPmY7jfGGMWQLmlFKfNXta63+VUpsi8tJ13T8/KWBsbGxURH4UkS+fUiXwWmv9IpvN/vPRAMdxngO/AKEnwhu6NsZ8d3x8vNkxwHGc51rr30TE+kQ4AFrrOxH52vO8t20B9bb8LSL2/4E3ZIy5FJFnruueAEjDqPf8AVxESKVS9PT0tIGCwSCpVAqlHnZZKRUxxvzQeLbgw9cCtG1oKBRiZGSE/v5+LMvCtj/kF4tFisUiQ0NDHBwcUCqVWpd+4zjOtOd576z6ay21VlIfJ5fLsbW1RTgcvgfZtk0+n2dhYYFardapVUvAu0aL5vwmJRIJzs7OMMZwdXVFpVKhUqmQz+cBOD09ZWJiwjdAKTUHIJOTk/2th6ihWCzGycmJL6ARMDw83MkeTSaTttzd3UU7zbAsCxHpZFOr1R71q9VqtLMLnJ+fMzAw0NGPRqNcXFw8hkCCweC5nxGJRNjb22N2dpZ4PN7mx+Nxpqen2d/f7wi3LCunAMbHx09E5AFlcXGR7u5uNjY2mJmZoa+vj+3tbXp7e1leXiafz7O6uorW2heutX6fzWY/FwCl1GbrhPX1dUSE+fl5rq+vsW2bQqFALpcjFAqxtrbWEV7XG6ifZBF52ere3t6SyWRQSjE4OMju7u69F4vFfE93swKBwE/3AfX7/HXrpFKpRCaTAWBlZeV+XETarohmGWNeua77130AgNb6BXDt9yY7OztorUmn06TTaQqFAuVy2Reutb6wLOv7xvODMhKJxJwx5g8R6WpdGA6HCYfDAFxeXnJzc+MHrwQCgXnXdbd9AwAcx/nKGPOrUiriW2IHaa0vAoHAt81waGpRQ57nvRWRZ8DvT4UbY151dXVNtcLh4z/96fpNOweMtlT8HngjIj97nnfQifFoQLOSyaRdrVaj8OGEHh0dtW+Cj/4DJ6A+XqZUkB4AAAAASUVORK5CYII='
+      github_im = Image.open(BytesIO(base64.b64decode(github_b64)))
+    
+      #https://www.iconfinder.com/icons/1312087/circle_outline_social-media_twitter_icon
+      twitter_b64 = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAA0VJREFUSImdlU1vU0cUhp8zc20nJCa52A5ISRQJC0VqVYHEChbtphWi0FZp40TqMlJXLPgv3bCirFBFiJNSoZagsuqmXRSli0pZmKYFVQpBsW8hH/66c7rwR+zYJk7P6t55Z573zMyZGaHP+GylMDqglTGAokS2Hsz4QT/j5G3i7L3tS2JlwSlXjDDZqjncc8Gsqrrb2Uzy12MZzC8H6Wrobhnho36yBH7UUG4szfsbRxrMZrevSSjfYoj3CQfAwWuLzi3OJlZ7GtTg+h3GeMeBH5i4Csr1bCb5uMNgfjlIV51bMzD8f+AHLi4IjbmwPHvqbwDTaK+G7lYr/ITXff8FeDdluTzu8V7KwwicGRJGYnWUMaOi+nWjv4FatbRuqD9geH8qgj/QaXJp3KMSwvp2SFByXB63fHIuwmRckHp3I/JpZjG4COABiJWFVkhiUHhWCJlOGN6UYD0fEjo4d8qytafkCiEA+aLyuiQkhywqoNoCMdUF4DcPoF7nzditwNSI4Zd/KpwdtXww6VEOIWqFXODal0wgv6/88Spsa3fKFQD58m7gV2Iu3yomB4WrZz0ePgspFF1z2WJW2dzVNtBE3DA2ZHi6We1YTlwl7oWD5RSuvSqdCpt7UA4PYA2jwxGPCv/20FSjKdNNyBcdv7+s8uFU5O13CeAPGjb3tKduihLZ6iYUQ4gPmGZldIuJuGG/ouyWuxuIlF+ZBzN+4HDPD4tvSsrPL8qcH7NMnrRdBsN0wrC21WXtAYfm7s+d3jEAgmm7PybilrRviRmYTkQ6Bp8ZEq6lozz5q9pemq2hPIL6OVB1t0XMVw0tdUJ4J2n5Mwj5aaNE2dXOxkhMSPuWwr7jYa7cg9wI800t+XpklvI/AFcb/8NRYWJYGB0wWCM4VYKSshE4itXemwrgVFeymcTnzRkAaCg31OqagZMAO2VlPa9A9xLsCccVPE9uNufR+Fia9zcsOudwlWMR2+Fl1GbuzSRedBgALM4mVlGu41xf7+3hzFH7cTbjP2lt7zho2UzycWjMBaf6fd9w1RXPyvnDcDji0c8sBhcx1fqjb9LtGWsO5ZE15s7iF/7TXoyjboIWs5fDqtEU1E7o/bnTO/2M+w/4HErdH/aalgAAAABJRU5ErkJggg=='
+      twitter_im = Image.open(BytesIO(base64.b64decode(twitter_b64)))
+    
+      logo = Image.new('RGBA', (250, 72), None)
+      draw = ImageDraw.Draw(logo)
+      font = ImageFont.truetype('/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',12)
+      logo.paste(twitter_im.resize((24,24)), (0,24))
+      draw.text((26,29), '@pyHoshen', (0,0,0), font=font)
+      logo.paste(github_im.resize((24,24)), (0,48))
+      draw.text((26,53), 'https://github.com/byblian/pyhoshen', (0,0,0), font=font)
+      draw.text((18,0), 'Generated using pyHoshen © 2019', (0,0,0), font=font)
+      
+      return logo
 
     def day_index(self, d):
         """
@@ -245,7 +271,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
                 
         fig.text(.5, 1.05, bidialg.get_display('חלוקת המנדטים') if hebrew else 'Mandates Allocation', 
                  ha='center', fontsize='xx-large')
-        fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
+        fig.figimage(create_logo(), 1000, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_pollster_house_effects(self, samples, hebrew = True):
         """
@@ -426,7 +452,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         fig.text(.5, 1.05, bidialg.get_display('התמיכה במפלגות לאורך זמן') if hebrew
                  else 'Party Support over Time', 
                  ha='center', fontsize='xx-large')
-        fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
+        fig.figimage(create_logo(), 1000, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_correlation_matrix(self, correlation_matrix, hebrew=False):
         """
