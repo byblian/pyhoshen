@@ -62,6 +62,10 @@ class ElectionDynamicsModel(pm.Model):
         # The support at day 0 is the election day vote.
         self.support = pm.Deterministic('support', self.votes + self.walk)
         
+        # Ensure the support sums to 1 on every day.
+        self.support_sum_to_1 = pm.Normal('support_sum_to_1',
+            self.support.sum(axis=1), 0.01, observed=np.ones([self.num_days]))
+        
         # Group polls by number of days. This is necessary to allow generating
         # a different cholesky matrix for each. This corresponds to the 
         # average of the modeled support used for multi-day polls.
@@ -110,6 +114,30 @@ class ElectionDynamicsModel(pm.Model):
         # Create the appropriate house-effects model, if needed.
         if model_type == 'polls-only':
             return mus
+
+        elif model_type == 'add-mean-variance':
+            self.pollster_house_effects = pm.Normal(
+                'pollster_house_effects', 0, 0.05,
+                T.ones([self.num_pollsters, self.num_parties]))
+
+            # Model the variance of the pollsters as a HalfCauchy
+            # variable.
+            self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
+                pollster_sigma_beta, shape=[self.num_pollsters, 1])
+    
+            def create_add_mean_variance_mu(num_poll_days, polls):
+                pollster_ids = [ p.pollster_id for p in polls ]
+                offsets = pm.Normal(
+                    'offsets_%d' % num_poll_days,
+                    0, 1, shape=[len(polls), 1])
+                
+                return (mus[num_poll_days] + 
+                        self.pollster_house_effects[pollster_ids] +
+                        self.pollster_sigmas[pollster_ids] * offsets)
+                
+            return { num_poll_days: create_add_mean_variance_mu(num_poll_days, polls)
+                     for num_poll_days, polls in self.grouped_polls }
+
         elif model_type == 'mult-mean-variance':
             # Model the coefficient multiplied on the mean as
             # a Gamma variable per-pollster per-party
@@ -171,7 +199,7 @@ class ElectionDynamicsModel(pm.Model):
                 
                 return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
                 
-            return { num_poll_days: create_mult_mean_variance_mu(num_poll_days, polls)
+            return { num_poll_days: create_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
 
         elif model_type == 'party-variance':
@@ -192,12 +220,13 @@ class ElectionDynamicsModel(pm.Model):
                 
                 return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
                 
-            return { num_poll_days: create_mult_mean_variance_mu(num_poll_days, polls)
+            return { num_poll_days: create_party_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
 
         else:
             raise ValueError("expected model_type '%s' to be one of %s" % 
                 (model_type, ', '.join(['polls-only', 
+                                        'add-mean-variance',
                                         'mult-mean-variance',
                                         'variance',
                                         'party-variance'])))
