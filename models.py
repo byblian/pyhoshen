@@ -22,7 +22,7 @@ class ElectionDynamicsModel(pm.Model):
     effects."
     """
     def __init__(self, name, votes, polls, party_groups,
-                 cholesky_matrix, test_results, model_type):
+                 cholesky_matrix, test_results, house_effects_model):
         super(ElectionDynamicsModel, self).__init__(name)
         
         self.votes = votes
@@ -83,7 +83,7 @@ class ElectionDynamicsModel(pm.Model):
         self.mus = { num_poll_days: [ expected_poll_outcome(p) for p in polls ] + self.votes
                 for num_poll_days, polls in self.grouped_polls }
 
-        self.create_house_effects(model_type)
+        self.create_house_effects(house_effects_model)
 
         # Ensure the support sums to 1 on every day.
         self.support_sum_to_1 = pm.Normal('support_sum_to_1',
@@ -110,13 +110,13 @@ class ElectionDynamicsModel(pm.Model):
                 observed=[ p.percentages for p in polls ])
             for num_poll_days, polls in self.grouped_polls ]
         
-    def create_house_effects(self, model_type, pollster_sigma_beta = 0.05):
+    def create_house_effects(self, house_effects_model, pollster_sigma_beta = 0.05):
         # Create the appropriate house-effects model, if needed.
-        if model_type == 'polls-only':
-            return mus
+        if house_effects_model == 'raw-polls':
+            return self.mus
 
-        elif model_type in [ 'add-mean-variance', 'mult-mean-variance', 'lin-mean-variance' ]:
-            if model_type in [ 'mult-mean-variance', 'lin-mean-variance' ]:
+        elif house_effects_model in [ 'add-mean-variance', 'mult-mean-variance', 'lin-mean-variance' ]:
+            if house_effects_model in [ 'mult-mean-variance', 'lin-mean-variance' ]:
                 # Model the coefficient multiplied on the mean as
                 # a Gamma variable per-pollster per-party
                 self.pollster_house_effects_a_ = pm.Gamma(
@@ -131,7 +131,7 @@ class ElectionDynamicsModel(pm.Model):
                     'pollster_house_effects_a', tt.ones([self.num_pollsters, self.num_parties]))
                 
             
-            if model_type in [ 'add-mean-variance', 'lin-mean-variance' ]:
+            if house_effects_model in [ 'add-mean-variance', 'lin-mean-variance' ]:
                 self.pollster_house_effects_b_ = pm.Normal(
                     'pollster_house_effects_b_', 0, 0.05,
                     shape=[self.num_pollsters - 1, self.num_parties],
@@ -176,7 +176,7 @@ class ElectionDynamicsModel(pm.Model):
             self.mus = { num_poll_days: create_lin_mean_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
             
-        elif model_type == 'variance':
+        elif house_effects_model == 'variance':
             self.pollster_house_effects = pm.Deterministic(
                 'pollster_house_effects', 
                 tt.ones([self.num_pollsters, self.num_parties]))
@@ -198,7 +198,7 @@ class ElectionDynamicsModel(pm.Model):
             self.mus = { num_poll_days: create_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
 
-        elif model_type == 'party-variance':
+        elif house_effects_model == 'party-variance':
             self.pollster_house_effects = pm.Deterministic(
                 'pollster_house_effects', 
                 tt.ones([self.num_pollsters, self.num_parties]))
@@ -222,12 +222,12 @@ class ElectionDynamicsModel(pm.Model):
 
         else:
             raise ValueError("expected model_type '%s' to be one of %s" % 
-                (model_type, ', '.join(['polls-only', 
-                                        'add-mean-variance',
-                                        'mult-mean-variance',
-                                        'lin-mean-variance',
-                                        'variance',
-                                        'party-variance'])))
+                (house_effects_model, ', '.join(['raw-polls', 
+                                                 'add-mean-variance',
+                                                 'mult-mean-variance',
+                                                 'lin-mean-variance',
+                                                 'variance',
+                                                 'party-variance'])))
         
         
 class ElectionCycleModel(pm.Model):
@@ -236,11 +236,12 @@ class ElectionCycleModel(pm.Model):
     include a fundamentals model as well as a dynamics model. 
     """
     def __init__(self, election_model, name, cycle_config, parties, election_polls,
-                 eta, test_results=None, real_results=None, model_type=None):
+                 eta, test_results=None, real_results=None, house_effects_model=None):
         super(ElectionCycleModel, self).__init__(name)
 
         self.config = cycle_config
 
+        self.house_effects_model = house_effects_model
         self.forecast_day = election_polls.forecast_day
         self.election_polls = election_polls
         self.parties = parties
@@ -278,7 +279,7 @@ class ElectionCycleModel(pm.Model):
             name=name + '_polls', votes=self.votes, 
             polls=election_polls, party_groups=self.party_groups,
             cholesky_matrix=self.cholesky_matrix,
-            test_results=test_results, model_type=model_type)
+            test_results=test_results, house_effects_model=house_effects_model)
             
         self.support = pm.Deterministic('support', self.dynamics.support)
 
@@ -289,7 +290,7 @@ class ElectionForecastModel(pm.Model):
     """
     def __init__(self, config, forecast_election=None,
                  base_elections=None, forecast_day=None,
-                 eta=25, model_type='polls', 
+                 eta=25, house_effects_model='add-mean-variance', 
                  max_days=35, *args, **kwargs):
 
         super(ElectionForecastModel, self).__init__(*args, **kwargs)
@@ -310,12 +311,12 @@ class ElectionForecastModel(pm.Model):
 
         self.forecast_model = self.init_cycle(forecast_election, 
             forecast_day=forecast_day, real_results=None, max_days=max_days,
-            eta=eta, model_type=model_type)
+            eta=eta, house_effects_model=house_effects_model)
                
         self.support = pm.Deterministic('support', self.forecast_model.support)
 
     def init_cycle(self, cycle, forecast_day, real_results, 
-                   eta, model_type, max_days = None):                
+                   eta, house_effects_model, max_days = None):                
         cycle_config = self.config['cycles'][cycle]
 
         parties = cycle_config['parties']
@@ -351,4 +352,5 @@ class ElectionForecastModel(pm.Model):
 
         return ElectionCycleModel(self, cycle, cycle_config, parties,
             election_polls=election_polls, eta=eta,
-            test_results=test_results, real_results=real_results, model_type=model_type)
+            test_results=test_results, real_results=real_results,
+            house_effects_model=house_effects_model)
