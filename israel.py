@@ -62,6 +62,31 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         """
         return (self.forecast_model.forecast_day - strpdate(d)).days
     
+    def house_effects_model_title(self, hebrew = True):
+        from bidi import algorithm as bidialg
+
+        fe = self.forecast_model
+        
+        if fe.house_effects_model == 'raw-polls':
+            house_effects_model_name = 'Raw Polls'
+        elif fe.house_effects_model == 'add-mean-variance':
+            house_effects_model_name = 'Additive Mean with Variance'
+        elif fe.house_effects_model == 'mult-mean-variance':
+            house_effects_model_name = 'Multiplicative Mean with Variance'
+        elif fe.house_effects_model == 'lin-mean-variance':
+            house_effects_model_name = 'Linear Mean with Variance'
+        elif fe.house_effects_model == 'variance':
+            house_effects_model_name = 'Variance'
+        elif fe.house_effects_model == 'party-variance':
+            house_effects_model_name = 'Party-Specific Variance'
+        else:
+            raise ValueError('Unknown house effects model')
+        
+        if hebrew:
+            return bidialg.get_display('\n(על פי מודל הטיות סוקרים “%s”)' % house_effects_model_name)
+        else:
+            return '(According to “%s” House-Effects model)' % house_effects_model_name
+        
     def create_surplus_matrices(self):
         """
         Create matrices that represent the surplus agreements between
@@ -269,8 +294,15 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
                 fp.set_xlim(right=max_failed_xlim)
                 fp.set_ylim(0, 150)
                 
-        fig.text(.5, 1.05, bidialg.get_display('חלוקת המנדטים') if hebrew else 'Mandates Allocation', 
-                 ha='center', fontsize='xx-large')
+        if hebrew:
+            title = bidialg.get_display('חלוקת המנדטים')
+        else:
+            title = 'Mandates Allocation'
+            
+        if fe.house_effects_model is not None:
+            title += '\n' + self.house_effects_model_title(hebrew)
+            
+        fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_pollster_house_effects(self, samples, hebrew = True):
@@ -449,9 +481,15 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             plots[-1][hindex].axis('off')
         plt.subplots_adjust(wspace=0.5,hspace=0.5)
     
-        fig.text(.5, 1.05, bidialg.get_display('התמיכה במפלגות לאורך זמן') if hebrew
-                 else 'Party Support over Time', 
-                 ha='center', fontsize='xx-large')
+        if hebrew:
+            title = bidialg.get_display('התמיכה במפלגות לאורך זמן')
+        else:
+            title = 'Party Support over Time'
+            
+        if fe.house_effects_model is not None:
+            title += '\n' + self.house_effects_model_title(hebrew)
+
+        fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_correlation_matrix(self, correlation_matrix, hebrew=False):
