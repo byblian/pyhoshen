@@ -299,10 +299,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         else:
             title = 'Mandates Allocation'
             
-        if fe.house_effects_model is not None:
-            title += '\n' + self.house_effects_model_title(hebrew)
-            
         fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
+        if fe.house_effects_model is not None:
+            fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_pollster_house_effects(self, samples, hebrew = True):
@@ -486,10 +485,10 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         else:
             title = 'Party Support over Time'
             
-        if fe.house_effects_model is not None:
-            title += '\n' + self.house_effects_model_title(hebrew)
-
         fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
+        if fe.house_effects_model is not None:
+            fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
+
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_correlation_matrix(self, correlation_matrix, hebrew=False):
