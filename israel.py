@@ -6,7 +6,7 @@ Supporting analysis functions of Israeli Election results.
 from . import models
 from . import utils
 import theano
-import theano.tensor as T
+import theano.tensor as tt
 from theano.ifelse import ifelse
 import numpy as np
 import matplotlib.pyplot as plt
@@ -92,15 +92,15 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         trace should be of dimensions nsamples x ndays x nparties
         """
         # trace : nsamples x ndays x nparties
-        num_seats = T.constant(120)
+        num_seats = tt.constant(120)
     
         def bader_ofer_fn___(prior, votes):
             moded = votes / (prior + 1)
-            return prior + T.eq(moded, moded.max())
+            return prior + tt.eq(moded, moded.max())
         
         def bader_ofer_fn__(cur_seats, prior, votes):
-            new_seats = ifelse(T.lt(cur_seats, num_seats), bader_ofer_fn___(prior, votes), prior)
-            return (cur_seats + 1, new_seats.astype("int64")), theano.scan_module.until(T.ge(cur_seats, num_seats))
+            new_seats = ifelse(tt.lt(cur_seats, num_seats), bader_ofer_fn___(prior, votes), prior)
+            return (cur_seats + 1, new_seats.astype("int64")), theano.scan_module.until(tt.ge(cur_seats, num_seats))
         
         # iterate a particular day of a sample, and compute the bader-ofer allocation
         def bader_ofer_fn_(seats, votes, surplus_matrix):
@@ -109,16 +109,16 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             outputs_info = [initial_seats.sum(), initial_seats], non_sequences = [surplus_matrix.dot(votes)], n_steps = num_seats)
           joint_seats = comp_ejs__[1][-1]
           surplus_t = surplus_matrix.T
-          has_seats_t = surplus_t * T.gt(surplus_t.sum(0),1)
-          is_joint_t = T.gt(surplus_t.sum(0),1).dot(surplus_matrix)
-          non_joint = T.eq(is_joint_t, 0)
+          has_seats_t = surplus_t * tt.gt(surplus_t.sum(0),1)
+          is_joint_t = tt.gt(surplus_t.sum(0),1).dot(surplus_matrix)
+          non_joint = tt.eq(is_joint_t, 0)
           votes_t = votes.dimshuffle(0, 'x')
           our_votes_t = surplus_t * votes_t
-          joint_moded = T.switch(T.eq(joint_seats, 0), 0, our_votes_t.sum(0) / joint_seats)
+          joint_moded = tt.switch(tt.eq(joint_seats, 0), 0, our_votes_t.sum(0) / joint_seats)
           joint_moded_both_t = joint_moded * has_seats_t
-          initial_seats_t = T.switch(T.eq(joint_moded_both_t, 0), 0, our_votes_t // joint_moded_both_t)
-          moded_t = T.switch(T.eq(joint_moded_both_t, 0), 0, votes_t / (initial_seats_t + 1))
-          added_seats = T.eq(moded_t, moded_t.max(0)) * has_seats_t
+          initial_seats_t = tt.switch(tt.eq(joint_moded_both_t, 0), 0, our_votes_t // joint_moded_both_t)
+          moded_t = tt.switch(tt.eq(joint_moded_both_t, 0), 0, votes_t / (initial_seats_t + 1))
+          added_seats = tt.eq(moded_t, moded_t.max(0)) * has_seats_t
           joint_added = initial_seats_t.sum(1) + added_seats.sum(1).astype("int64")
           return joint_seats * non_joint + joint_added * is_joint_t * (seats > 0)
         
@@ -133,9 +133,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         if surpluses is None:
             surpluses = self.create_surplus_matrices()
             
-        votes = T.tensor3("votes")
-        seats = T.tensor3("seats", dtype='int64')
-        surplus_matrices = T.tensor3("surplus_matrices", dtype='int64')
+        votes = tt.tensor3("votes")
+        seats = tt.tensor3("seats", dtype='int64')
+        surplus_matrices = tt.tensor3("surplus_matrices", dtype='int64')
         
         # iterate each sample, and compute for each the bader-ofer allocation
         comp_bo, _ = theano.scan(bader_ofer_fn, sequences=[seats, votes], non_sequences=[surplus_matrices])

@@ -5,7 +5,7 @@ A collection of pymc3 models for political election modeling.
 
 import numpy as np
 import pymc3 as pm
-import theano.tensor as T
+import theano.tensor as tt
 import datetime
 import itertools
 
@@ -62,10 +62,6 @@ class ElectionDynamicsModel(pm.Model):
         # The support at day 0 is the election day vote.
         self.support = pm.Deterministic('support', self.votes + self.walk)
         
-        # Ensure the support sums to 1 on every day.
-        self.support_sum_to_1 = pm.Normal('support_sum_to_1',
-            self.support.sum(axis=1), 0.01, observed=np.ones([self.num_days]))
-        
         # Group polls by number of days. This is necessary to allow generating
         # a different cholesky matrix for each. This corresponds to the 
         # average of the modeled support used for multi-day polls.
@@ -84,10 +80,14 @@ class ElectionDynamicsModel(pm.Model):
             else:
                 return self.walk[p.start_day]
         
-        mus = { num_poll_days: [ expected_poll_outcome(p) for p in polls ] + self.votes
+        self.mus = { num_poll_days: [ expected_poll_outcome(p) for p in polls ] + self.votes
                 for num_poll_days, polls in self.grouped_polls }
 
-        self.mus = self.create_house_effects(model_type, mus)
+        self.create_house_effects(model_type)
+
+        # Ensure the support sums to 1 on every day.
+        self.support_sum_to_1 = pm.Normal('support_sum_to_1',
+            self.support.sum(axis=1), 0.01, shape=[self.num_days], observed=np.ones([self.num_days]))
 
         self.likelihoods = [
             # The Multivariate Student-T variable that models the polls.
@@ -103,56 +103,47 @@ class ElectionDynamicsModel(pm.Model):
             pm.MvStudentT(
                 'polls_%d_days' % num_poll_days,
                 nu=[ p.num_polled - 1 for p in polls ],
-                mu=mus[num_poll_days],
+                mu=self.mus[num_poll_days],
                 chol=self.cholesky_matrix / np.sqrt(num_poll_days),
                 testval=test_results,
                 shape=[len(polls), self.num_parties],
                 observed=[ p.percentages for p in polls ])
             for num_poll_days, polls in self.grouped_polls ]
         
-    def create_house_effects(self, model_type, mus, pollster_sigma_beta = 0.05):
+    def create_house_effects(self, model_type, pollster_sigma_beta = 0.05):
         # Create the appropriate house-effects model, if needed.
         if model_type == 'polls-only':
             return mus
 
-        elif model_type == 'add-mean-variance':
-            self.pollster_house_effects = pm.Normal(
-                'pollster_house_effects', 0, 0.05,
-                shape=[self.num_pollsters, self.num_parties],
-                testval=T.zeros([self.num_pollsters, self.num_parties]))
-
-            # Model the variance of the pollsters as a HalfCauchy
-            # variable.
-            self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
-                pollster_sigma_beta, shape=[self.num_pollsters, 1])
-    
-            def create_add_mean_variance_mu(num_poll_days, polls):
-                pollster_ids = [ p.pollster_id for p in polls ]
-                offsets = pm.Normal(
-                    'offsets_%d' % num_poll_days,
-                    0, 1, shape=[len(polls), 1],
-                    testval=np.zeros([len(polls), 1]))
+        elif model_type in [ 'add-mean-variance', 'mult-mean-variance', 'lin-mean-variance' ]:
+            if model_type in [ 'mult-mean-variance', 'lin-mean-variance' ]:
+                # Model the coefficient multiplied on the mean as
+                # a Gamma variable per-pollster per-party
+                self.pollster_house_effects_a_ = pm.Gamma(
+                    'pollster_house_effects_a_', 1, 0.05,
+                    shape=[self.num_pollsters - 1, self.num_parties],
+                    testval=tt.ones([self.num_pollsters - 1, self.num_parties]))
+                self.pollster_house_effects_a = pm.Deterministic(
+                    'pollster_house_effects_a', 
+                    tt.concatenate([self.pollster_house_effects_a_, self.num_pollsters - self.pollster_house_effects_a_.sum(axis=0, keepdims=True)]))
+            else:
+                self.pollster_house_effects_a = pm.Deterministic(
+                    'pollster_house_effects_a', tt.ones([self.num_pollsters, self.num_parties]))
                 
-                return (mus[num_poll_days] + 
-                        self.pollster_house_effects[pollster_ids] +
-                        self.pollster_sigmas[pollster_ids] * offsets)
-                
-            return { num_poll_days: create_add_mean_variance_mu(num_poll_days, polls)
-                     for num_poll_days, polls in self.grouped_polls }
-
-        elif model_type == 'mult-mean-variance':
-            # Model the coefficient multiplied on the mean as
-            # a Gamma variable per-pollster per-party
-
-            self.pollster_house_effects = pm.Gamma(
-                'pollster_house_effects', 1, 1,
-                shape=[self.num_pollsters, self.num_parties])
-            self.pollster_house_effects_eps = pm.HalfCauchy('pollster_house_effects_eps', 0.05)
-            self.pollster_house_effects_avg = pm.Potential('pollster_house_effects_avg',
-                pm.Normal.dist(1, self.pollster_house_effects_eps, shape=self.num_pollsters).logp(
-                    self.pollster_house_effects.prod(axis=1)))
-
-            # Model the variance of the pollsters as a HalfCauchy
+            
+            if model_type in [ 'add-mean-variance', 'lin-mean-variance' ]:
+                self.pollster_house_effects_b_ = pm.Normal(
+                    'pollster_house_effects_b_', 0, 0.05,
+                    shape=[self.num_pollsters - 1, self.num_parties],
+                    testval=tt.zeros([self.num_pollsters - 1, self.num_parties]))
+                self.pollster_house_effects_b = pm.Deterministic(
+                    'pollster_house_effects_b', 
+                    tt.concatenate([self.pollster_house_effects_b_, -self.pollster_house_effects_b_.sum(axis=0, keepdims=True)]))
+            else:
+                self.pollster_house_effects_b= pm.Deterministic(
+                    'pollster_house_effects_b', tt.zeros([self.num_pollsters, self.num_parties]))
+                    
+           # Model the variance of the pollsters as a HalfCauchy
             # variable.
             self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
                 pollster_sigma_beta, shape=[self.num_pollsters, 1])
@@ -171,23 +162,24 @@ class ElectionDynamicsModel(pm.Model):
             # This is transformed to a non-centered parameterization.
             # Because only the mean is modified, the same grouping
             # as the base model can still be used.
-            def create_mult_mean_variance_mu(num_poll_days, polls):
+            def create_lin_mean_variance_mu(num_poll_days, polls):
                 pollster_ids = [ p.pollster_id for p in polls ]
                 offsets = pm.Normal(
                     'offsets_%d' % num_poll_days,
                     0, 1, shape=[len(polls), 1],
                     testval=np.zeros([len(polls), 1]))
                 
-                return (self.pollster_house_effects[pollster_ids] * mus[num_poll_days]
-                    + self.pollster_sigmas[pollster_ids] * offsets)
-                
-            return { num_poll_days: create_mult_mean_variance_mu(num_poll_days, polls)
+                return (self.pollster_house_effects_a[pollster_ids] * self.mus[num_poll_days] + 
+                        self.pollster_house_effects_b[pollster_ids] +
+                        self.pollster_sigmas[pollster_ids] * offsets)
+              
+            self.mus = { num_poll_days: create_lin_mean_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
-
+            
         elif model_type == 'variance':
             self.pollster_house_effects = pm.Deterministic(
                 'pollster_house_effects', 
-                T.ones([self.num_pollsters, self.num_parties]))
+                tt.ones([self.num_pollsters, self.num_parties]))
 
             # Model the variance of the pollsters as a HalfCauchy
             # variable.
@@ -201,15 +193,15 @@ class ElectionDynamicsModel(pm.Model):
                     0, 1, shape=[len(polls), 1],
                     testval=np.zeros([len(polls), 1]))
                 
-                return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
+                return (self.mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
                 
-            return { num_poll_days: create_variance_mu(num_poll_days, polls)
+            self.mus = { num_poll_days: create_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
 
         elif model_type == 'party-variance':
             self.pollster_house_effects = pm.Deterministic(
                 'pollster_house_effects', 
-                T.ones([self.num_pollsters, self.num_parties]))
+                tt.ones([self.num_pollsters, self.num_parties]))
 
             # Model the variance of the pollsters as a HalfCauchy
             # variable.
@@ -223,9 +215,9 @@ class ElectionDynamicsModel(pm.Model):
                     0, 1, shape=[len(polls), self.num_parties],
                     testval=np.zeros([len(polls), self.num_parties]))
                 
-                return (mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
+                return (self.mus[num_poll_days] + self.pollster_sigmas[pollster_ids] * offsets)
                 
-            return { num_poll_days: create_party_variance_mu(num_poll_days, polls)
+            self.mus = { num_poll_days: create_party_variance_mu(num_poll_days, polls)
                      for num_poll_days, polls in self.grouped_polls }
 
         else:
@@ -233,6 +225,7 @@ class ElectionDynamicsModel(pm.Model):
                 (model_type, ', '.join(['polls-only', 
                                         'add-mean-variance',
                                         'mult-mean-variance',
+                                        'lin-mean-variance',
                                         'variance',
                                         'party-variance'])))
         
