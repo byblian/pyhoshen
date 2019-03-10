@@ -185,6 +185,8 @@ class Configuration:
                       for p in parties:
                         if type(row[p]) is int:
                           mands[p] = int(row[p])
+                        elif type(row[p]) is float:
+                          mands[p] = float(row[p])
                         elif row[p].endswith('%'):
                           percs[p] = np.float64(row[p][:-1])/100
                         elif len(row[p]) > 0:
