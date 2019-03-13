@@ -115,7 +115,7 @@ class ElectionDynamicsModel(pm.Model):
         if house_effects_model == 'raw-polls':
             return self.mus
 
-        elif house_effects_model in [ 'add-mean-variance', 'mult-mean-variance', 'lin-mean-variance' ]:
+        elif house_effects_model in [ 'add-mean-variance' ]: #, 'mult-mean-variance', 'lin-mean-variance' ]:
             if house_effects_model in [ 'mult-mean-variance', 'lin-mean-variance' ]:
                 # Model the coefficient multiplied on the mean as
                 # a Gamma variable per-pollster per-party
@@ -224,8 +224,8 @@ class ElectionDynamicsModel(pm.Model):
             raise ValueError("expected model_type '%s' to be one of %s" % 
                 (house_effects_model, ', '.join(['raw-polls', 
                                                  'add-mean-variance',
-                                                 'mult-mean-variance',
-                                                 'lin-mean-variance',
+                                                 #'mult-mean-variance',
+                                                 #'lin-mean-variance',
                                                  'variance',
                                                  'party-variance'])))
         
