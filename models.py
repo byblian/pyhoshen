@@ -262,7 +262,7 @@ class ElectionCycleModel(pm.Model):
         # Model the prior on the election-day votes
         # This could be replaced by the results of a
         # fundamentals model
-        self.votes = pm.Uniform('votes', 0, 0.5, shape=self.num_parties)
+        self.votes = pm.Flat('votes', shape=self.num_parties)
 
         # Prepare the party grouping indexes. This is
         # currently unused.
