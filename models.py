@@ -323,7 +323,7 @@ class ElectionForecastModel(pm.Model):
     """
     def __init__(self, config, forecast_election=None,
                  base_elections=None, forecast_day=None,
-                 eta=25, min_polls_per_pollster=1,
+                 eta=1, min_polls_per_pollster=1,
                  house_effects_model='add-mean-variance', 
                  max_days=35, *args, **kwargs):
 
