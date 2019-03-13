@@ -132,10 +132,13 @@ class ElectionDynamicsModel(pm.Model):
                 
             
             if house_effects_model in [ 'add-mean-variance', 'lin-mean-variance' ]:
-                self.pollster_house_effects_b_ = pm.Normal(
-                    'pollster_house_effects_b_', 0, 0.05,
-                    shape=[self.num_pollsters - 1, self.num_parties],
-                    testval=tt.zeros([self.num_pollsters - 1, self.num_parties]))
+                self.pollster_house_effects_b__ = pm.Normal(
+                    'pollster_house_effects_b__', 0, 0.05,
+                    shape=[self.num_pollsters - 1, self.num_parties - 1],
+                    testval=tt.zeros([self.num_pollsters - 1, self.num_parties - 1]))
+                self.pollster_house_effects_b_ = pm.Deterministic(
+                    'pollster_house_effects_b_', 
+                    tt.concatenate([self.pollster_house_effects_b__, -self.pollster_house_effects_b__.sum(axis=1, keepdims=True)], axis=1))
                 self.pollster_house_effects_b = pm.Deterministic(
                     'pollster_house_effects_b', 
                     tt.concatenate([self.pollster_house_effects_b_, -self.pollster_house_effects_b_.sum(axis=0, keepdims=True)]))
