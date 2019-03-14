@@ -369,7 +369,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             burn = -min(len(samples), 1000)
             
         if mbo is None:
-            mbo = self.compute_trace_bader_ofer(samples['support'])
+            mbo = self.compute_trace_bader_ofer(samples)
     
         samples = samples[burn:]
         mbo = mbo[burn:]
@@ -384,8 +384,8 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         dimensions = get_dimensions(fe.num_parties)
         fig, plots = plt.subplots(dimensions[1], dimensions[0], 
                                   figsize=(5.5 * dimensions[0], 3.5 * dimensions[1]))
-        means = samples['support'].mean(axis=0)
-        stds = samples['support'].std(axis=0)
+        means = samples.mean(axis=0)
+        stds = samples.std(axis=0)
     
         for index, party in enumerate(party_avg):
             party_config = fe.config['parties'][fe.party_ids[party]]
@@ -465,8 +465,8 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
      
             subplots[hindex].grid(False)           
             
-            sup = [sample[party][0] for sample in samples['support']]
-            mandates += int(120.0*sum(sup)/len(samples['support']))
+            sup = [sample[party][0] for sample in samples]
+            mandates += int(120.0*sum(sup)/len(samples))
             
             subplots[hindex].xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
             
