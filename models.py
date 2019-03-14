@@ -112,10 +112,6 @@ class ElectionDynamicsModel(pm.Model):
 
         self.create_house_effects(house_effects_model)
 
-        # Ensure the support sums to 1 on every day.
-        self.support_sum_to_1 = pm.Normal('support_sum_to_1',
-            self.support.sum(axis=1), 0.01, shape=[self.num_days], observed=np.ones([self.num_days]))
-
         self.likelihoods = [
             # The Multivariate Student-T variable that models the polls.
             #
