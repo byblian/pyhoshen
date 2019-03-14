@@ -193,7 +193,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         bo_sqrsum = np.sqrt(np.sum((bo_plot[:,:,None] - bo_plot[:,None,:]) ** 2, axis=0)).mean(axis=0)
         return bader_ofer[bo_sqrsum.argmin()][day]
     
-    def plot_mandates(self, samples, bader_ofer, max_bo=None, day=0, hebrew=True):
+    def plot_mandates(self, bader_ofer, max_bo=None, day=0, hebrew=True):
         """
         Plot the resulting mandates of the parties and their distributions.
         This is the bar graph most often seen in poll results.
