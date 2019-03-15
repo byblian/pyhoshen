@@ -321,7 +321,7 @@ class ElectionForecastModel(pm.Model):
                  base_elections=None, forecast_day=None,
                  eta=1, min_polls_per_pollster=1,
                  house_effects_model='add-mean-variance', 
-                 max_days=35, *args, **kwargs):
+                 extra_avg_days=0, max_days=35, *args, **kwargs):
 
         super(ElectionForecastModel, self).__init__(*args, **kwargs)
         
@@ -340,14 +340,16 @@ class ElectionForecastModel(pm.Model):
                 if cycle < forecast_election]
 
         self.forecast_model = self.init_cycle(forecast_election, 
-            forecast_day=forecast_day, real_results=None, max_days=max_days,
+            forecast_day=forecast_day, real_results=None,
+            extra_avg_days=extra_avg_days, max_days=max_days,
             eta=eta, house_effects_model=house_effects_model,
             min_polls_per_pollster=min_polls_per_pollster)
                
         self.support = pm.Deterministic('support', self.forecast_model.support)
 
     def init_cycle(self, cycle, forecast_day, real_results, 
-                   eta, min_polls_per_pollster, house_effects_model, max_days = None):                
+                   eta, min_polls_per_pollster, house_effects_model,
+                   extra_avg_days = 0, max_days = None):
         cycle_config = self.config['cycles'][cycle]
 
         parties = cycle_config['parties']
@@ -377,7 +379,7 @@ class ElectionForecastModel(pm.Model):
         # interface so use the first dataset ('-0')
         election_polls = polls.ElectionPolls(
             self.config.dataframes['polls']['%s-0' % cycle],
-            parties.keys(), forecast_day, max_days)
+            parties.keys(), forecast_day, extra_avg_days, max_days)
         
         test_results = [ np.nan_to_num(f) for f in election_polls.get_last_days_average(10)]
 

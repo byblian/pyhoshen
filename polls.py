@@ -16,10 +16,10 @@ class Poll:
        
 class ElectionPolls:
     
-    def __init__(self, polls_dataset, party_ids, forecast_day, max_days = None):
+    def __init__(self, polls_dataset, party_ids, forecast_day, extra_avg_days = 0, max_days = None):
 
         def day_index(d):
-            return (forecast_day - d.to_pydatetime().date()).days
+            return (forecast_day - d.to_pydatetime().date()).days + (extra_avg_days + 1) // 2
     
         self.forecast_day = forecast_day
         self.party_ids = [p for p in party_ids]
@@ -40,7 +40,7 @@ class ElectionPolls:
             pollster = poll['pollster'] if 'pollster' in poll else poll['poller']
             poll_id = poll['id']
             num_polled = poll['num_polled']
-            num_poll_days = poll['num_days']
+            num_poll_days = poll['num_days'] + extra_avg_days
             start_day = day_index(poll['start_date'])
 
             if start_day - num_poll_days + 1 >= 0 and start_day < self.num_days:
