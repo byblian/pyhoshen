@@ -39,11 +39,11 @@ class ElectionDynamicsModel(pm.Model):
         if type(adjacent_day_fn) in [int, float]:
             self.adjacent_day_fn = lambda diff: diff ** adjacent_day_fn
         else:
-        self.adjacent_day_fn = adjacent_day_fn
+            self.adjacent_day_fn = adjacent_day_fn
         
         self.test_results = (polls.get_last_days_average(10)
             if test_results is None else test_results)
-
+        
         # The base polls model. House-effects models
         # are optionally set up based on this model.
 
@@ -110,7 +110,7 @@ class ElectionDynamicsModel(pm.Model):
                 return self.walk[poll_days].mean(axis=0)
             else:
                 return self.walk[p.start_day]
-        
+              
         def expected_polls_outcome(polls):
             if self.adjacent_day_fn is None:
                 return [ expected_poll_outcome(p) for p in polls ] + self.votes
