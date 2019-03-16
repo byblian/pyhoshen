@@ -143,7 +143,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           joint_moded_both_t = joint_moded * has_seats_t
           initial_seats_t = tt.switch(tt.eq(joint_moded_both_t, 0), 0, our_votes_t // joint_moded_both_t)
           moded_t = tt.switch(tt.eq(joint_moded_both_t, 0), 0, votes_t / (initial_seats_t + 1))
-          added_seats = tt.eq(moded_t, moded_t.max(0)) * has_seats_t
+          added_seats = tt.eq(moded_t, moded_t.max(0)) * has_seats_t * tt.gt(joint_seats - initial_seats_t, 0)
           joint_added = initial_seats_t.sum(1) + added_seats.sum(1).astype("int64")
           return joint_seats * non_joint + joint_added * is_joint_t * (seats > 0)
         
