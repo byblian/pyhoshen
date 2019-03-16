@@ -171,7 +171,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         passed_votes = trace / kosher_votes
         passed_votes[passed_votes < threshold] = 0
         
-        initial_moded = (kosher_votes / 120)
+        initial_moded = (passed_votes.sum(axis=2, keepdims=True) / 120)
         initial_seats = (passed_votes // initial_moded).astype('int64')
     
         ndays = trace.shape[1]
