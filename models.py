@@ -21,9 +21,9 @@ class ElectionDynamicsModel(pm.Model):
     campaign based on the polls, optionally assuming "house
     effects."
     """
-    def __init__(self, name, votes, polls, party_groups,
-                 cholesky_matrix, test_results, house_effects_model,
-                 min_polls_per_pollster):
+    def __init__(self, name, votes, polls, party_groups, cholesky_matrix,
+                 test_results, house_effects_model, min_polls_per_pollster,
+                 adjacent_day_fn):
         super(ElectionDynamicsModel, self).__init__(name)
         
         self.votes = votes
@@ -36,6 +36,10 @@ class ElectionDynamicsModel(pm.Model):
         self.max_poll_days = polls.max_poll_days
         self.num_party_groups = max(self.party_groups) + 1
         self.cholesky_matrix = cholesky_matrix
+        if type(adjacent_day_fn) in [int, float]:
+            self.adjacent_day_fn = lambda diff: diff ** adjacent_day_fn
+        else:
+        self.adjacent_day_fn = adjacent_day_fn
         
         self.test_results = (polls.get_last_days_average(10)
             if test_results is None else test_results)
@@ -107,7 +111,18 @@ class ElectionDynamicsModel(pm.Model):
             else:
                 return self.walk[p.start_day]
         
-        self.mus = { num_poll_days: [ expected_poll_outcome(p) for p in polls ] + self.votes
+        def expected_polls_outcome(polls):
+            if self.adjacent_day_fn is None:
+                return [ expected_poll_outcome(p) for p in polls ] + self.votes
+            else:
+                weights = np.asarray([[ 
+                    sum(self.adjacent_day_fn(1. + abs(d - poll_day)) 
+                        for poll_day in range(p.end_day, p.start_day + 1)) 
+                    for d in range(self.num_days) ]
+                    for p in polls])
+                return tt.dot(weights / weights.sum(axis=1, keepdims=True), self.walk + self.votes)
+        
+        self.mus = { num_poll_days: expected_polls_outcome(polls)
                 for num_poll_days, polls in self.grouped_polls }
 
         self.create_house_effects(house_effects_model)
@@ -263,7 +278,8 @@ class ElectionCycleModel(pm.Model):
     include a fundamentals model as well as a dynamics model. 
     """
     def __init__(self, election_model, name, cycle_config, parties, election_polls,
-                 eta, min_polls_per_pollster, test_results=None, real_results=None,
+                 eta, adjacent_day_fn, min_polls_per_pollster,
+                 test_results=None, real_results=None,
                  house_effects_model=None):
         super(ElectionCycleModel, self).__init__(name)
 
@@ -308,7 +324,8 @@ class ElectionCycleModel(pm.Model):
             polls=election_polls, party_groups=self.party_groups,
             cholesky_matrix=self.cholesky_matrix,
             test_results=test_results, house_effects_model=house_effects_model,
-            min_polls_per_pollster=min_polls_per_pollster)
+            min_polls_per_pollster=min_polls_per_pollster,
+            adjacent_day_fn=adjacent_day_fn)
             
         self.support = pm.Deterministic('support', self.dynamics.support)
 
@@ -321,7 +338,8 @@ class ElectionForecastModel(pm.Model):
                  base_elections=None, forecast_day=None,
                  eta=1, min_polls_per_pollster=1,
                  house_effects_model='add-mean-variance', 
-                 extra_avg_days=0, max_days=35, *args, **kwargs):
+                 extra_avg_days=0, max_days=35, adjacent_day_fn=-2.,
+                 *args, **kwargs):
 
         super(ElectionForecastModel, self).__init__(*args, **kwargs)
         
@@ -342,6 +360,7 @@ class ElectionForecastModel(pm.Model):
         self.forecast_model = self.init_cycle(forecast_election, 
             forecast_day=forecast_day, real_results=None,
             extra_avg_days=extra_avg_days, max_days=max_days,
+            adjacent_day_fn=adjacent_day_fn,
             eta=eta, house_effects_model=house_effects_model,
             min_polls_per_pollster=min_polls_per_pollster)
                
@@ -349,7 +368,7 @@ class ElectionForecastModel(pm.Model):
 
     def init_cycle(self, cycle, forecast_day, real_results, 
                    eta, min_polls_per_pollster, house_effects_model,
-                   extra_avg_days = 0, max_days = None):
+                   extra_avg_days, max_days, adjacent_day_fn):
         cycle_config = self.config['cycles'][cycle]
 
         parties = cycle_config['parties']
@@ -385,6 +404,7 @@ class ElectionForecastModel(pm.Model):
 
         return ElectionCycleModel(self, cycle, cycle_config, parties,
             election_polls=election_polls, eta=eta,
+            adjacent_day_fn=adjacent_day_fn,
             test_results=test_results, real_results=real_results,
             house_effects_model=house_effects_model,
             min_polls_per_pollster=min_polls_per_pollster)
