@@ -37,7 +37,7 @@ class ElectionDynamicsModel(pm.Model):
         self.num_party_groups = max(self.party_groups) + 1
         self.cholesky_matrix = cholesky_matrix
         if type(adjacent_day_fn) in [int, float]:
-            self.adjacent_day_fn = lambda diff: diff ** adjacent_day_fn
+            self.adjacent_day_fn = lambda diff: (1. + diff) ** adjacent_day_fn
         else:
             self.adjacent_day_fn = adjacent_day_fn
         
@@ -116,7 +116,7 @@ class ElectionDynamicsModel(pm.Model):
                 return [ expected_poll_outcome(p) for p in polls ] + self.votes
             else:
                 weights = np.asarray([[ 
-                    sum(self.adjacent_day_fn(1. + abs(d - poll_day)) 
+                    sum(self.adjacent_day_fn(abs(d - poll_day)) 
                         for poll_day in range(p.end_day, p.start_day + 1)) 
                     for d in range(self.num_days) ]
                     for p in polls])
