@@ -69,10 +69,16 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         
         if fe.house_effects_model == 'raw-polls':
             house_effects_model_name = 'Raw Polls'
+        elif fe.house_effects_model == 'add-mean':
+            house_effects_model_name = 'Additive Mean'
         elif fe.house_effects_model == 'add-mean-variance':
             house_effects_model_name = 'Additive Mean with Variance'
+        elif fe.house_effects_model == 'mult-mean':
+            house_effects_model_name = 'Multiplicative Mean'
         elif fe.house_effects_model == 'mult-mean-variance':
             house_effects_model_name = 'Multiplicative Mean with Variance'
+        elif fe.house_effects_model == 'lin-mean':
+            house_effects_model_name = 'Linear Mean'
         elif fe.house_effects_model == 'lin-mean-variance':
             house_effects_model_name = 'Linear Mean with Variance'
         elif fe.house_effects_model == 'variance':

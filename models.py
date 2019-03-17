@@ -153,8 +153,8 @@ class ElectionDynamicsModel(pm.Model):
         if house_effects_model == 'raw-polls':
             return self.mus
 
-        elif house_effects_model in [ 'add-mean-variance' ]: #, 'mult-mean-variance', 'lin-mean-variance' ]:
-            if house_effects_model in [ 'mult-mean-variance', 'lin-mean-variance' ]:
+        elif house_effects_model in [ 'add-mean', 'add-mean-variance', 'mult-mean', 'mult-mean-variance', 'lin-mean', 'lin-mean-variance' ]:
+            if house_effects_model in [ 'mult-mean', 'mult-mean-variance', 'lin-mean', 'lin-mean-variance' ]:
                 # Model the coefficient multiplied on the mean as
                 # a Gamma variable per-pollster per-party
                 self.pollster_house_effects_a_ = pm.Gamma(
@@ -170,7 +170,7 @@ class ElectionDynamicsModel(pm.Model):
                     'pollster_house_effects_a', tt.ones([self.num_pollsters_in_model, self.num_parties]))
                 
             
-            if house_effects_model in [ 'add-mean-variance', 'lin-mean-variance' ]:
+            if house_effects_model in [ 'add-mean', 'add-mean-variance', 'lin-mean', 'lin-mean-variance' ]:
                 self.pollster_house_effects_b__ = pm.Normal(
                     'pollster_house_effects_b__', 0, 0.05,
                     shape=[self.num_pollsters_in_model - 1, self.num_parties - 1],
@@ -187,8 +187,12 @@ class ElectionDynamicsModel(pm.Model):
                     
            # Model the variance of the pollsters as a HalfCauchy
             # variable.
-            self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
-                pollster_sigma_beta, shape=[self.num_pollsters_in_model, 1])
+            if house_effects_model in [ 'add-mean-variance', 'mult-mean-variance', 'lin-mean-variance' ]:
+                self.pollster_sigmas = pm.HalfCauchy('pollster_sigmas',
+                    pollster_sigma_beta, shape=[self.num_pollsters_in_model, 1])
+            else:
+                self.pollster_sigmas = pm.Deterministic('pollster_sigmas', 
+                    tt.zeros([self.num_pollsters_in_model, 1]))
     
             # To simplify the modeling, only the mean is modified
             # based on the house effects.
@@ -206,10 +210,15 @@ class ElectionDynamicsModel(pm.Model):
             # as the base model can still be used.
             def create_lin_mean_variance_mu(num_poll_days, polls):
                 pollster_ids = [ self.pollster_mapping[p.pollster_id] for p in polls ]
-                offsets = pm.Normal(
-                    'offsets_%d' % num_poll_days,
-                    0, 1, shape=[len(polls), 1],
-                    testval=np.zeros([len(polls), 1]))
+
+                if house_effects_model in [ 'add-mean-variance', 'mult-mean-variance', 'lin-mean-variance' ]:
+                    offsets = pm.Normal(
+                        'offsets_%d' % num_poll_days,
+                        0, 1, shape=[len(polls), 1],
+                        testval=np.zeros([len(polls), 1]))
+                else:
+                    offsets = pm.Deterministic('offsets_%d' % num_poll_days, 
+                        tt.zeros([len(polls), 1]))
                 
                 return (self.pollster_house_effects_a[pollster_ids] * self.mus[num_poll_days] + 
                         self.pollster_house_effects_b[pollster_ids] +
@@ -265,9 +274,10 @@ class ElectionDynamicsModel(pm.Model):
         else:
             raise ValueError("expected model_type '%s' to be one of %s" % 
                 (house_effects_model, ', '.join(['raw-polls', 
+                                                 'add-mean',
                                                  'add-mean-variance',
-                                                 #'mult-mean-variance',
-                                                 #'lin-mean-variance',
+                                                 'mult-mean-variance',
+                                                 'lin-mean-variance',
                                                  'variance',
                                                  'party-variance'])))
         
@@ -337,7 +347,7 @@ class ElectionForecastModel(pm.Model):
     def __init__(self, config, forecast_election=None,
                  base_elections=None, forecast_day=None,
                  eta=1, min_polls_per_pollster=1,
-                 house_effects_model='add-mean-variance', 
+                 house_effects_model='add-mean', 
                  extra_avg_days=0, max_days=35, adjacent_day_fn=-2.,
                  *args, **kwargs):
 
