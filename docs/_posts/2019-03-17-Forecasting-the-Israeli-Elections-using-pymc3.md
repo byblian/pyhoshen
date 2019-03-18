@@ -141,11 +141,11 @@ election.plot_mandates(bo, hebrew=True)
 ```
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_9_0.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_9_0.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_9_1.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_9_1.png)
 
 
 However, in addition to the normal bar graph that we are used to, we also see the distribution of each party's support. We can see, for example, that "New Yamin" has a 76% of passing the threshold. Zehut - a type of libertarian 420-friendly party that is surprisingly making headway in the polls has a 67% chance of passing the threshold. Similarly, Raam-Balad, a union of two Arab parties that was almost blocked from running due to associations with terrorism also has a 67% chance of passing the threshold. Now, these are displayed as individual bar-graphs but we have to remember that the model always considers correlations. Raam-Balad split from the "Joint Arab List" on the last day of party registration, leaving the other two Arab parties Hadash-Taal by themselves. Both of these party unions are competing primarily in the same electorate - the Arab population. So if in one modeled scenario, Raam-Balad receives a low amount of support, it is likely that Hadash-Taal would receive a higher amount of support in that same scenario.
@@ -163,11 +163,11 @@ election.plot_party_support_evolution_graphs(support_samples, bo, hebrew=True)
 ```
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_11_0.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_11_0.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_11_1.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_11_1.png)
 
 
 In the above graphs, we might be able to see some trends such as Likud going up while New Yamin and Kulanu are going down. These are all parties competing on the right-wing electorate. We can also see that Blue & White, the main opposition party to the Likud did drop in support but has remained relatively stationary over the last few days, while Zehut -- the libertarian 420-friendly surprise party - has been constantly rising in support.
@@ -225,67 +225,67 @@ election.plot_pollster_house_effects(samples['election21_2019_polls_pollster_hou
     
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_1.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_1.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_2.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_2.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_3.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_3.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_4.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_4.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_5.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_5.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_6.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_6.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_7.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_7.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_8.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_8.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_9.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_9.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_10.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_10.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_11.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_11.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_12.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_12.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_13.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_13.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_14.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_14.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_15.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_15.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_16.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_15_16.png)
 
 
 ### Correlation Matrix
@@ -301,9 +301,9 @@ election.plot_election_correlation_matrices(correlation_matrices, hebrew=True)
 ```
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_17_0.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_17_0.png)
 
 
 
-![png](2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_files/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_17_1.png)
+![png](/images/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3/2019-03-17-Forecasting-the-Israeli-Elections-using-pymc3_17_1.png)
 
