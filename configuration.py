@@ -65,7 +65,8 @@ class Configuration:
                 else:
                     raise Exception('unknown type: %s' % data['type'])
             else:
-                extension = os.path.splitext(data['filename'])[1]
+                filename = os.path.normpath(os.path.join(self.path, data['filename']))
+                extension = os.path.splitext(filename)[1]
                 if extension == '.csv':
                     parse_dates = data['parse_dates'] if 'parse_dates' in data else False
                     if 'date_format' in data:
@@ -73,14 +74,14 @@ class Configuration:
                     else:
                         date_parser = None
                     encoding = data['encoding'] if 'encoding' in data else None
-                    df = pd.read_csv(data['filename'], encoding=encoding,
+                    df = pd.read_csv(filename, encoding=encoding,
                                      parse_dates=parse_dates, date_parser=date_parser)
                 elif extension == '.xls' or extension == '.xlsx':
                     header = data['header'] if 'header' in data else 0
                     nrows = data['nrows'] if 'nrows' in data else None
                     index_col = data['index_col'] if 'index_col' in data else None
                     usecols = data['usecols'] if 'usecols' in data else None
-                    df = pd.read_excel(data['filename'], header=header, nrows=nrows,
+                    df = pd.read_excel(filename, header=header, nrows=nrows,
                                 index_col=index_col,
                                 skip_rows=range(min(header)))
                     if usecols is not None:
