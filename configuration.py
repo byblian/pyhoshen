@@ -3,6 +3,7 @@ import datetime
 import pandas as pd
 import json
 import io
+import os
 import os.path
 
 def get_version():
@@ -11,7 +12,7 @@ def get_version():
 class Configuration:
     def __init__(self, config):
         self.dataframes = {}
-        self.config = self.read_config(config)
+        self.config, self.path = self.read_config(config)
         
     def __getitem__(self, key):
         return self.config[key]
@@ -19,13 +20,16 @@ class Configuration:
     def read_config(self, config):
         max_filesize = 1024 * 1024
         assert type(config) in [dict, str], 'expected either str or dict'
+        config_path = os.getcwd()
+
         if type(config) is dict:
-            return config
+            return config, config_path
         
         if '://' in config:
             import urllib
             config_data = urllib.request.urlopen(config).read(max_filesize)
         elif config.endswith('json'):
+            config_path = os.path.dirname(os.path.abspath(config))
             with open(config, 'r', encoding='utf8') as f:
                 config_data = f.read(max_filesize)
         else:
@@ -33,17 +37,17 @@ class Configuration:
 
         if config.endswith('.hjson'):
             import hjson
-            return hjson.loads(config_data)
+            return hjson.loads(config_data), config_path
         elif config.endswith('.json'):
             import json
-            return json.loads(config_data)
+            return json.loads(config_data), config_path
         else:
             try:
                 import hjson
-                return hjson.loads(config_data)
+                return hjson.loads(config_data), config_path
             except ImportError:
                 import json
-                return json.loads(config_data)
+                return json.loads(config_data), config_path
                 
     def read_config_datasets(self, dataframes, config):
         for dataset, data in config.items():
@@ -119,7 +123,8 @@ class Configuration:
     def read_data(self, configs):
         for category, category_filename in configs.items():
             self.dataframes[category] = {}
-            with io.open(category_filename, 'r', encoding='utf-8-sig') as f:
+            filename = os.path.normpath(os.path.join(self.path, category_filename))
+            with io.open(filename, 'r', encoding='utf-8-sig') as f:
                 config = json.load(f)
                 self.read_config_datasets(self.dataframes[category], config)
 
