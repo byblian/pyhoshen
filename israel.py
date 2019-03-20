@@ -310,6 +310,72 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
+    def plot_coalitions(self, bader_ofer, max_bo=None, day=0, hebrew=True):
+        """
+        Plot the resulting mandates of the coalitions and their distributions.
+        """
+    
+        from bidi import algorithm as bidialg
+    
+        fe=self.forecast_model
+    
+        coalitions = fe.config['coalitions']
+        num_coalitions = len(coalitions)
+        coalitions_matrix = np.zeros([num_coalitions, fe.num_parties], dtype='bool')
+        for i, (coalition, config) in enumerate(coalitions.items()):
+           for party in config['parties']:
+              party_index = fe.party_ids.index(party)
+              coalitions_matrix[i][party_index] = 1
+    
+        bo_plot = bader_ofer.transpose(1,2,0)[day]
+        coalitions_bo = coalitions_matrix.dot(bo_plot)
+    
+        fig, plots = plt.subplots(1, num_coalitions, figsize=(5 * num_coalitions, 5))
+        xlim_dists = []
+        ylim_height = []
+    
+        for i, (coalition, config) in enumerate(coalitions.items()) :
+          name = bidialg.get_display(config['hname']) if hebrew else config['name']
+          plots[i].set_title(name, va='bottom', y=-0.2, fontsize='large')
+          mandates_count = np.unique(coalitions_bo[i], return_counts=True)
+          bars = plots[i].bar(mandates_count[0], 100 * mandates_count[1] / len(coalitions_bo[i]))
+      
+          xticks = []
+          max_start = 0
+          if 0 in mandates_count[0]:
+            xticks += [0]
+            max_start = 1
+            zero_rect = bars[0]
+            plots[i].text(zero_rect.get_x() + zero_rect.get_width()/2.0, zero_rect.get_height(), ' %d%%' % (100 * mandates_count[1][0] / len(coalitions_bo[i])), ha='center', va='bottom')
+          if len(mandates_count[1]) > max_start:
+              max_index = max_start + np.argmax(mandates_count[1][max_start:])
+              max_rect = bars[max_index]
+              plots[i].text(max_rect.get_x() + max_rect.get_width()/2.0, max_rect.get_height(), ' %d%%' % (100 * mandates_count[1][max_index] / len(coalitions_bo[i])), ha='center', va='bottom')
+              xticks += [mandates_count[0][max_index]]
+          plots[i].set_xticks(xticks)
+          xlim = plots[i].get_xlim()
+          xlim_dists += [ xlim[1] - xlim[0] + 1 ]
+          ylim_height += [ plots[i].get_ylim()[1] ]
+          plots[i].grid(False)
+          plots[i].tick_params(axis='y', which='both',left=False,labelleft=False)
+          plots[i].set_facecolor('white')
+        xlim_side = max(xlim_dists) / 2
+        for i in range(num_coalitions) :
+          xlim = plots[i].get_xlim()
+          xlim_center = (xlim[0] + xlim[1]) / 2
+          plots[i].set_xlim(xlim_center - xlim_side, xlim_center + xlim_side)
+          plots[i].set_ylim(top=max(ylim_height))
+    
+        if hebrew:
+            title = bidialg.get_display('קואליציות')
+        else:
+            title = 'Coalitions'
+    
+        fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
+        if fe.house_effects_model is not None:
+            fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
+        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
+
     def plot_pollster_house_effects(self, samples, hebrew = True):
         """
         Plot the house effects of each pollster per party.
