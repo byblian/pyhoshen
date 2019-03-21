@@ -10,6 +10,7 @@ import theano.tensor as tt
 from theano.ifelse import ifelse
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as pe
 import seaborn as sns
 import datetime
 
@@ -310,7 +311,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
-    def plot_coalitions(self, bader_ofer, max_bo=None, day=0, hebrew=True):
+    def plot_coalitions(self, bader_ofer, coalitions=None, day=0, min_mandates_for_coalition=61, hebrew=True):
         """
         Plot the resulting mandates of the coalitions and their distributions.
         """
@@ -319,7 +320,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
     
         fe=self.forecast_model
     
-        coalitions = fe.config['coalitions']
+        if coalitions is None:
+          coalitions = fe.config['coalitions']
+    
         num_coalitions = len(coalitions)
         coalitions_matrix = np.zeros([num_coalitions, fe.num_parties], dtype='bool')
         for i, (coalition, config) in enumerate(coalitions.items()):
@@ -336,22 +339,35 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
     
         for i, (coalition, config) in enumerate(coalitions.items()) :
           name = bidialg.get_display(config['hname']) if hebrew else config['name']
-          plots[i].set_title(name, va='bottom', y=-0.2, fontsize='large')
+          title = plots[i].set_title(name, va='bottom', y=-0.2, fontsize='large')
+          party_names = [ bidialg.get_display(fe.parties[party]['hname']) if hebrew else fe.parties[party]['name'] for party in config['parties'] ]
+          plots[i].text(0.5, -0.2, '\n'.join(sorted(party_names)), ha='center', va='top', fontsize='small', transform=plots[i].transAxes)
           mandates_count = np.unique(coalitions_bo[i], return_counts=True)
           bars = plots[i].bar(mandates_count[0], 100 * mandates_count[1] / len(coalitions_bo[i]))
-      
+          for mandates, bar in zip(mandates_count[0], bars):
+            if mandates < min_mandates_for_coalition:
+              bar.set_color('r')
+              
           xticks = []
           max_start = 0
+    
           if 0 in mandates_count[0]:
             xticks += [0]
             max_start = 1
-            zero_rect = bars[0]
-            plots[i].text(zero_rect.get_x() + zero_rect.get_width()/2.0, zero_rect.get_height(), ' %d%%' % (100 * mandates_count[1][0] / len(coalitions_bo[i])), ha='center', va='bottom')
+    
+          mean_mandates = coalitions_bo[i].mean()
           if len(mandates_count[1]) > max_start:
-              max_index = max_start + np.argmax(mandates_count[1][max_start:])
-              max_rect = bars[max_index]
-              plots[i].text(max_rect.get_x() + max_rect.get_width()/2.0, max_rect.get_height(), ' %d%%' % (100 * mandates_count[1][max_index] / len(coalitions_bo[i])), ha='center', va='bottom')
-              xticks += [mandates_count[0][max_index]]
+              mean_index = np.where(mandates_count[0]==int(np.round(mean_mandates)))
+              mean_index = mean_index[0][0]
+              mean_rect = bars[mean_index]
+              xticks += [mandates_count[0][mean_index]]
+          num_above = len(np.where(coalitions_bo[i] >= min_mandates_for_coalition)[0])
+          perc_text = plots[i].text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + mean_rect.get_height()/2.0, '%.1f%%' % (100 * num_above / coalitions_bo[i].shape[0]), ha='center', va='top', fontsize='xx-large')
+          perc_text.set_path_effects([pe.withStroke(linewidth=3, foreground='w')])
+          perc_title = plots[i].text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + mean_rect.get_height()/2.0,
+              bidialg.get_display('מעל %d:' % (min_mandates_for_coalition - 1)) if hebrew else 'Above %d:' % (min_mandates_for_coalition - 1),
+              ha='center', va='bottom', fontsize='medium')
+          perc_title.set_path_effects([pe.withStroke(linewidth=3, foreground='w')])
           plots[i].set_xticks(xticks)
           xlim = plots[i].get_xlim()
           xlim_dists += [ xlim[1] - xlim[0] + 1 ]
@@ -374,7 +390,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
         if fe.house_effects_model is not None:
             fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
-        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
+        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 0, zorder=1000)
 
     def plot_pollster_house_effects(self, samples, hebrew = True):
         """
