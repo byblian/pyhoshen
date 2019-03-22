@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 def get_version():
     return 7
@@ -20,7 +21,7 @@ class ElectionPolls:
                  extra_avg_days=0, max_poll_days=None, polls_since=None, min_poll_days=None):
 
         def day_index(d):
-            if type(d) is pandas.Timestamp:
+            if type(d) is pd.Timestamp:
                 d = d.to_pydatetime()
             if type(d) is datetime.datetime:
                 d = d.date()
