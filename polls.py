@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import datetime as dt
 
 class Poll:
     def __init__(self, poll_id, num_polled, start_day, num_poll_days, percentages, pollster_id):
@@ -20,9 +21,9 @@ class ElectionPolls:
         def day_index(d):
             if type(d) is pd.Timestamp:
                 d = d.to_pydatetime()
-            if type(d) is datetime.datetime:
+            if type(d) is dt.datetime:
                 d = d.date()
-            assert type(d) == datetime.date, "invalid value given for date: %s" % str(d)
+            assert type(d) == dt.date, "invalid value given for date: %s" % str(d)
             return (forecast_day - d).days + (extra_avg_days + 1) // 2
     
         self.forecast_day = forecast_day
