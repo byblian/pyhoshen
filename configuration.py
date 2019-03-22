@@ -197,7 +197,7 @@ class Configuration:
                           percs[p] = np.float64(row[p][:-1])/100
                         elif len(row[p]) > 0:
                           raise ValueError("invalid row element at row %d: %s" % (i, row[p]))
-                      assert sum(mands.values()) >= total_seats, "not enough mandates in row %d, sum = %d: %s" % (i, sum(mands.values()), str(mands))
+                      assert round(sum(mands.values()),3) >= total_seats, "not enough mandates in row %d, sum = %.3f: %s" % (i, sum(mands.values()), str(mands))
                       if others_col in mands or others_col in percs:
                         others = 0
                       elif len(percs) > 0 or sum(mands.values()) > total_seats:
