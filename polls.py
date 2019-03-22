@@ -16,18 +16,27 @@ class Poll:
        
 class ElectionPolls:
     
-    def __init__(self, polls_dataset, party_ids, forecast_day, extra_avg_days = 0, max_days = None):
+    def __init__(self, polls_dataset, party_ids, forecast_day,
+                 extra_avg_days=0, max_poll_days=None, polls_since=None, min_poll_days=None):
 
         def day_index(d):
-            return (forecast_day - d.to_pydatetime().date()).days + (extra_avg_days + 1) // 2
+            if type(d) is pandas.Timestamp:
+                d = d.to_pydatetime()
+            if type(d) is datetime.datetime:
+                d = d.date()
+            assert type(d) == datetime.date, "invalid value given for date: %s" % str(d)
+            return (forecast_day - d).days + (extra_avg_days + 1) // 2
     
         self.forecast_day = forecast_day
         self.party_ids = [p for p in party_ids]
         self.num_parties = len(self.party_ids)
         self.num_days = day_index(min(polls_dataset['start_date'])) + 1
-        if max_days is not None:
-            self.num_days = min(self.num_days, max_days)
-            
+        if max_poll_days is not None:
+            assert polls_since==None, "only one of polls_since or max_poll_days should be provided"
+            self.num_days = min(self.num_days, max_poll_days)
+        elif polls_since is not None:
+            polls_since_days = max(day_index(polls_since) + 1, min_poll_days)
+            self.num_days = min(self.num_days, polls_since_days)
         self.max_poll_days = 0
 
         self.pollster_ids = []
