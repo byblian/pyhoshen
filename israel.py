@@ -341,7 +341,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           name = bidialg.get_display(config['hname']) if hebrew else config['name']
           title = plots[i].set_title(name, va='bottom', y=-0.2, fontsize='large')
           party_names = [ bidialg.get_display(fe.parties[party]['hname']) if hebrew else fe.parties[party]['name'] for party in config['parties'] ]
-          plots[i].text(0.5, -0.2, '\n'.join(sorted(party_names, key=lambda p: reversed(p) if hebrew else p)),
+          plots[i].text(0.5, -0.2, '\n'.join(sorted(party_names, key=lambda p: p[::-1] if hebrew else p)),
                ha='center', va='top', fontsize='small', transform=plots[i].transAxes)
           mandates_count = np.unique(coalitions_bo[i], return_counts=True)
           bars = plots[i].bar(mandates_count[0], 100 * mandates_count[1] / len(coalitions_bo[i]))
