@@ -14,9 +14,6 @@ import matplotlib.patheffects as pe
 import seaborn as sns
 import datetime
 
-def get_version():
-    return 16
-
 def strpdate(d):
     return datetime.datetime.strptime(d, '%d/%m/%Y').date()
 

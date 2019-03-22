@@ -6,9 +6,6 @@ import io
 import os
 import os.path
 
-def get_version():
-    return 2
-
 class Configuration:
     def __init__(self, config):
         self.dataframes = {}

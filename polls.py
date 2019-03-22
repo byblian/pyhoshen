@@ -1,9 +1,6 @@
 import numpy as np
 import pandas as pd
 
-def get_version():
-    return 7
-
 class Poll:
     def __init__(self, poll_id, num_polled, start_day, num_poll_days, percentages, pollster_id):
         assert num_polled >= 100, "expected num_polled >= 100, but was %d" % num_polled

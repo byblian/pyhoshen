@@ -12,9 +12,6 @@ import itertools
 from . import polls
 from . import configuration
 
-def get_version():
-    return 365
-
 class ElectionDynamicsModel(pm.Model):
     """
     A pymc3 model that models the dynamics of an election
