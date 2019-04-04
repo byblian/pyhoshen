@@ -235,6 +235,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             xticks += [0]
             max_start = 1
             zero_rect = bars[0]
+            zero_rect.set_color('red')
             plots[1][i].text(zero_rect.get_x() + zero_rect.get_width()/2.0, zero_rect.get_height(), ' %d%%' % (100 * mandates_count[1][0] / len(bo_plot[party])), ha='center', va='bottom')
           if len(mandates_count[1]) > max_start:
               max_index = max_start + np.argmax(mandates_count[1][max_start:])
@@ -270,12 +271,13 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             if len(mandates_count[0]) > 1:
                 max_start = 0
                 xticks = []
+                bars = failed_plot.bar(mandates_count[0], 100 * mandates_count[1] / len(bo_plot[party]))
                 if 0 in mandates_count[0]:
                     xticks += [0]
                     max_start = 1
                     zero_rect = bars[0]
+                    zero_rect.set_color('red')
                     failed_plot.text(zero_rect.get_x() + zero_rect.get_width()/2.0, zero_rect.get_height(), ' %d%%' % (100 * mandates_count[1][0] / len(bo_plot[party])), ha='center', va='bottom')
-                bars = failed_plot.bar(mandates_count[0], 100 * mandates_count[1] / len(bo_plot[party]))
                 if len(mandates_count[1]) > max_start:
                     max_index = max_start + np.argmax(mandates_count[1][max_start:])
                     max_rect = bars[max_index]
