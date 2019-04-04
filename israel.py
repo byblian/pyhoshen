@@ -9,6 +9,7 @@ import theano
 import theano.tensor as tt
 from theano.ifelse import ifelse
 import numpy as np
+import scipy.stats as ss
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import seaborn as sns
@@ -197,6 +198,23 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         bo_sqrsum = np.sqrt(np.sum((bo_plot[:,:,None] - bo_plot[:,None,:]) ** 2, axis=0)).mean(axis=0)
         return bader_ofer[bo_sqrsum.argmin()][day]
     
+    def compute_interval(self, values, alpha=0.95):    
+        avg = values.mean()
+        scale = values.std()
+        
+        return ss.norm.interval(alpha, avg, scale)
+
+    def compute_mandates_interval(self, mandates, alpha=0.95):    
+        threshold = float(self.forecast_model.config['threshold_percent']) / 100
+
+        def convert_interval(i):
+          if i < int(threshold * 120):
+            return 0
+          else:
+            return np.round(i)
+        
+        return tuple(convert_interval(i) for i in self.compute_interval(mandates, alpha))
+      
     def plot_mandates(self, bader_ofer, max_bo=None, day=0, hebrew=True):
         """
         Plot the resulting mandates of the parties and their distributions.
@@ -230,19 +248,24 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           plots[0][i].set_ylim(top=max_bo_height)
           bars = plots[1][i].bar(mandates_count[0], 100 * mandates_count[1] / len(bo_plot[party]))
           xticks = []
+          xtick_labels = []
           max_start = 0
           if 0 in mandates_count[0]:
-            xticks += [0]
+            #xticks += [0]
+            #xtick_labels += [ '' ]
             max_start = 1
             zero_rect = bars[0]
             zero_rect.set_color('red')
             plots[1][i].text(zero_rect.get_x() + zero_rect.get_width()/2.0, zero_rect.get_height(), ' %d%%' % (100 * mandates_count[1][0] / len(bo_plot[party])), ha='center', va='bottom')
           if len(mandates_count[1]) > max_start:
+              interval = self.compute_mandates_interval(bo_plot[party])
               max_index = max_start + np.argmax(mandates_count[1][max_start:])
               max_rect = bars[max_index]
-              plots[1][i].text(max_rect.get_x() + max_rect.get_width()/2.0, max_rect.get_height(), ' %d%%' % (100 * mandates_count[1][max_index] / len(bo_plot[party])), ha='center', va='bottom')
+              #plots[1][i].text(max_rect.get_x() + max_rect.get_width()/2.0, max_rect.get_height(), ' %d%%' % (100 * mandates_count[1][max_index] / len(bo_plot[party])), ha='center', va='bottom')
               xticks += [mandates_count[0][max_index]]
+              xtick_labels += [ '\n%d - %d' % interval ]
           plots[1][i].set_xticks(xticks)
+          plots[1][i].set_xticklabels(xtick_labels)
           xlim = plots[1][i].get_xlim()
           xlim_dists += [ xlim[1] - xlim[0] + 1 ]
           ylim_height += [ plots[1][i].get_ylim()[1] ]
@@ -265,25 +288,29 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         failed_plots = []
         for failed_index in range(num_failed_parties):
             failed_plot = fig.add_subplot(num_failed_parties*2, num_passed_parties,
-                num_passed_parties * (failed_index + 1) - offset, ymargin = 0.5)
+                num_passed_parties * (failed_index + 1) - offset, ymargin = 1)
             party = failed_parties[failed_index]
             mandates_count = np.unique(bo_plot[party], return_counts=True)
             if len(mandates_count[0]) > 1:
                 max_start = 0
                 xticks = []
+                xtick_labels = []
                 bars = failed_plot.bar(mandates_count[0], 100 * mandates_count[1] / len(bo_plot[party]))
                 if 0 in mandates_count[0]:
-                    xticks += [0]
+                    #xticks += [0]
                     max_start = 1
                     zero_rect = bars[0]
                     zero_rect.set_color('red')
                     failed_plot.text(zero_rect.get_x() + zero_rect.get_width()/2.0, zero_rect.get_height(), ' %d%%' % (100 * mandates_count[1][0] / len(bo_plot[party])), ha='center', va='bottom')
                 if len(mandates_count[1]) > max_start:
+                    interval = self.compute_mandates_interval(bo_plot[party])
                     max_index = max_start + np.argmax(mandates_count[1][max_start:])
                     max_rect = bars[max_index]
-                    failed_plot.text(max_rect.get_x() + max_rect.get_width()/2.0, max_rect.get_height(), ' %d%%' % (100 * mandates_count[1][max_index] / len(bo_plot[party])), ha='center', va='bottom')
+                    #failed_plot.text(max_rect.get_x() + max_rect.get_width()/2.0, max_rect.get_height(), ' %d%%' % (100 * mandates_count[1][max_index] / len(bo_plot[party])), ha='center', va='bottom')
                     xticks += [mandates_count[0][max_index]]
+                    xtick_labels += [ '\n%d - %d' % interval ]
                 failed_plot.set_xticks(xticks)
+                failed_plot.set_xticklabels(xtick_labels)
             else:
                 failed_plot.text(0.8, 0.5, str(mandates_count[0][0]), ha='center', va='bottom')
             name = bidialg.get_display(parties[fe.party_ids[party]]['hname']) if hebrew else parties[fe.party_ids[party]]['name']
@@ -415,6 +442,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         house_effects = samples.transpose(2,1,0)
         fe = self.forecast_model
         
+        actual_pollsters = [i for i in fe.dynamics.pollster_mapping.items() if i[1] is not None]
+        pollster_ids = [fe.pollster_ids[pollster] for _,pollster in sorted(actual_pollsters, key=lambda i: i[1])]
+
         plots = []
         for i, party in enumerate(fe.party_ids):
           def pollster_label(pi, pollster_id):
@@ -425,10 +455,10 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
                   label = fe.config['pollsters'][pollster_id]['name'] + ': ' + perc
               return label
             
-          cpalette = sns.color_palette("cubehelix", len(fe.pollster_ids))
+          cpalette = sns.color_palette("cubehelix", len(pollster_ids))
           patches = [
               mpatches.Patch(color=cpalette[pi], label=pollster_label(pi, pollster))
-              for pi, pollster in enumerate(fe.pollster_ids)]
+              for pi, pollster in enumerate(pollster_ids)]
     
           fig, ax = plt.subplots(figsize=(10, 2))
           legend = fig.legend(handles=patches, loc='best', ncol=2)
