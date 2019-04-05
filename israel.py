@@ -363,6 +363,18 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         xlim_dists = []
         ylim_height = []
         
+        colors = [
+          '#ff0000', # 57 = red
+          '#ff3d00', # 58
+          '#ff7900', # 59
+          '#ffb600', # 60
+          '#fff200', # 61 = yellow
+          '#c7db00', # 62
+          '#8fc400', # 63
+          '#56ad00', # 64
+          '#1e9600', # 65 = green
+        ]
+
         for i, (coalition, config) in enumerate(coalitions.items()) :
           name = bidialg.get_display(config['hname']) if hebrew else config['name']
           title = plots[i].set_title(name, va='bottom', y=-0.2, fontsize='large')
@@ -372,12 +384,8 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           mandates_count = np.unique(coalitions_bo[i], return_counts=True)
           bars = plots[i].bar(mandates_count[0], 100 * mandates_count[1] / len(coalitions_bo[i]))
           for mandates, bar in zip(mandates_count[0], bars):
-            if mandates < min_mandates_for_coalition:
-              bar.set_color('red')
-            elif mandates < stable_mandates_for_coalition:
-              bar.set_color('orange')
-            else:
-              bar.set_color('green')
+            cindex = int(min(8, max(0, mandates - 57)))
+            bar.set_color(colors[cindex])
               
           xticks = []
           max_start = 0
