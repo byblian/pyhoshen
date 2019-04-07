@@ -1,2 +1,4 @@
 theme: minima
 google_analytics: UA-137824421-1
+disqus:
+  shortname: pyhoshen
