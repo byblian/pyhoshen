@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Forecasting the Israeli Elections using pymc3
 ---
 
