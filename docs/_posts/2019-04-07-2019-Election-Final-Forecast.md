@@ -7,7 +7,7 @@ In almost every Israeli election, we have an "election-day surprise." The polls 
 ![png](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
 <!--more-->
 
-In the US, as well as elsewhere, [Bayesian statistics](https://en.wikipedia.org/wiki/Bayesian_statistics) and [MCMC modelling](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) have been used to predict the elections by sites such as Nate Silver's 538 and others. It worked very well in 2008 and 2012. In 2016, 538 still "missed" but estimated that Trump had chances of [about 30%](https://projects.fivethirtyeight.com/2016-election-forecast/).
+In the US, as well as elsewhere, [Bayesian statistics](https://en.wikipedia.org/wiki/Bayesian_statistics) and [MCMC modelling](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) have been used to predict the elections by sites such as Nate Silver's [538](https://fivethirtyeight.com/) and others. It worked very well in 2008 and 2012. In 2016, 538 still "missed" but estimated that Trump had chances of [about 30%](https://projects.fivethirtyeight.com/2016-election-forecast/).
 
 I present here the final forecast of a similar model adapted to Israel, using MCMC techniques. The model is open-source and you can learn how to run it yourself and read the technical details in a [separate post](/2019/04/07/Forecasting-the-Israeli-Elections-using-pymc3.html).
 
@@ -37,6 +37,16 @@ To deal with all the uncertainty, the model chooses a representative sample that
 Today, it appears that the polls are more stationary - there does not seem to be a last-minute game-changer as such. Zehut's odd video may be considered as such for better or worse but its effect is probably limited to Zehut. It does not appear to directly affect the major parties - Blue and White or Likud. Possibly, any such consideration is already factored into the polls. 
 
 The primary problem this year is that we have to contend with multiple parties that border the threshold. The model expects that Gesher has an 80% chance of not passing the threshold, Yisrael Beitenu has a 63% chance of not passing the threshold and Raam-Balad probably won't pass the threshold with a 58%. From the parties that the model believes have a higher chance of making it, there is still uncertainty: Kulanu has a one in four chance of not making it, Shas has a 1 in 5, Meretz has a 1 in 6, and Zehut a 1 in 7 chance of not making the threshold.
+
+To give an idea of the way the various party mandates might vary, here are the top 5 potential outcomes:
+
+Blue & White|Likud|Labor|Hadash-Taal|UTJ|Shas|Right Union|New Right|Zehut|Kulanu|Raam-Balad|Meretz|Magen|Gesher|Yisrael Beitenu
+------------|-----|-----|-----------|---|----|-----------|---------|-----|------|----------|------|-----|------|---------------
+31|28|10|8|7|6|6|6|5|5|4|4|0|0|0
+30|29|10|6|6|5|8|6|5|6|4|5|0|0|0
+31|29|8|7|7|5|7|7|4|5|4|6|0|0|0
+31|29|9|9|7|6|7|6|7|4|0|5|0|0|0
+32|30|9|8|7|5|5|6|5|4|4|5|0|0|0
 
 ## Coalitions Forecast
 
