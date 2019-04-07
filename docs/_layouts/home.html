@@ -24,9 +24,7 @@ layout: default
         {%- if site.show_excerpts -%}
           {%- if post.excerpt -%}
             {{ post.excerpt }}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-              {{ site.excerpt_separator | escape }}
-            </a>
+            <a class="post-meta" href="{{ post.url | relative_url }}">Read more...</a>
           {%- endif -%}
         {%- endif -%}
       </li>
