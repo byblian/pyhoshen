@@ -1,3 +1,7 @@
+---
+layout: default
+comments: true
+---
 
 # Forecasting the Israeli Elections using pymc3
 
