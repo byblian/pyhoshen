@@ -7,7 +7,7 @@ In almost every Israeli election, we have an "election-day surprise." The polls 
 ![png](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
 <!--more-->
 
-In the US, as well as elsewhere, [Bayesian statistics](https://en.wikipedia.org/wiki/Bayesian_statistics) and [MCMC modelling](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) have been used to predict the elections by sites such as Nate Silver's 538 and others. It worked very well in 2008 and 2012. In 2016, 538 still "missed" but estimated that Trump had chances of [about 30%](link: https://projects.fivethirtyeight.com/2016-election-forecast/).
+In the US, as well as elsewhere, [Bayesian statistics](https://en.wikipedia.org/wiki/Bayesian_statistics) and [MCMC modelling](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) have been used to predict the elections by sites such as Nate Silver's 538 and others. It worked very well in 2008 and 2012. In 2016, 538 still "missed" but estimated that Trump had chances of [about 30%](https://projects.fivethirtyeight.com/2016-election-forecast/).
 
 I present here the final forecast of a similar model adapted to Israel, using MCMC techniques. The model is open-source and you can learn how to run it yourself and read the technical details in a [separate post](/2019/04/07/Forecasting-the-Israeli-Elections-using-pymc3.html).
 
