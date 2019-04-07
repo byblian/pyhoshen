@@ -1,10 +1,11 @@
 theme: minima
 google_analytics: UA-137824421-1
-url: "https://pyhoshen.org"
+url: "http://pyhoshen.org"
 disqus:
   shortname: pyhoshen
+twitter_username: pyhoshen
 minima:
   social_links:
     twitter: pyhoshen
 show_excerpts: true
-except_separator: "<!--more-->"
+excerpt_separator: "<!--more-->"
