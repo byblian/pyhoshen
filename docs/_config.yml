@@ -2,7 +2,7 @@ theme: minima
 google_analytics: UA-137824421-1
 url: "http://pyhoshen.org"
 disqus:
-  shortname: pyhoshen
+  shortname: "pyhoshen"
 twitter_username: pyhoshen
 minima:
   social_links:
