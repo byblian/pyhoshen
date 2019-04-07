@@ -1,5 +1,6 @@
 ---
 title: Forecasting the Israeli Elections using pymc3
+author: Yitzhak Sapir
 ---
 Welcome!
 
@@ -7,7 +8,7 @@ Election polls are possibly the clearest most public example of statistics that 
 <!--more-->
 Here in Israel, the issue is even more pronounced: It is 2019, and there are currently over a dozen parties that have some viable chance of receiving some seats in parliament (called the Knesset). But a whole bunch of them are trailing near the "threshold." The threshold - at 3.25% - means that if a party does not pass the threshold, its votes are divided up amongst the other parties using a complex algorithm called Bader-Ofer. Multiple polls taken at the same time might show different parties passing the threshold, and this naturally affects the final results.
 
-This is the purpose of pyHoshen. pyHoshen is a framework for Bayesian MCMC election-polling written in pymc3. pymc3 is designed as an "Inference button" - just write the statistical model in high-level python and push the "Inference buttom" and it translates the code into a Bayesian MCMC model. Computing the model might take some time, but pymc3 uses C++ and the GPU to provide extra computational speed. Similarly, pyHoshen attempts to be the "Inference button" for election-polling - just feed in the polls and set up the election parameters, and it translates the polls into the statistical model for pymc3. This is a work-in-progress and contributions and comments are welcome!
+This is the purpose of pyHoshen. pyHoshen is a framework for Bayesian MCMC election-polling written in [pymc3](https://docs.pymc.io/). pymc3 is designed as an "Inference button" - just write the statistical model in high-level python and push the "Inference buttom" and it translates the code into a Bayesian MCMC model. Computing the model might take some time, but pymc3 uses C++ and the GPU to provide extra computational speed. Similarly, pyHoshen attempts to be the "Inference button" for election-polling - just feed in the polls and set up the election parameters, and it translates the polls into the statistical model for pymc3. This is a work-in-progress and contributions and comments are welcome!
 
 It is important to understand - the model is a complex "poll of polls." Whereas other poll of polls might provide a simple average, pyHoshen can account for correlations between parties and potential house effects of pollsters.
 
