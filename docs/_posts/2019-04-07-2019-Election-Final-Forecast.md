@@ -4,7 +4,7 @@ author: Yitzhak Sapir
 ---
 In almost every Israeli election, we have an "election-day surprise." The polls say one thing - the results come out different. Can we do better?
 
-![png](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
+[![Mandates Forecast](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
 <!--more-->
 
 In the US, as well as elsewhere, [Bayesian statistics](https://en.wikipedia.org/wiki/Bayesian_statistics) and [MCMC modelling](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) have been used to predict the elections by sites such as Nate Silver's [538](https://fivethirtyeight.com/) and others. It worked very well in 2008 and 2012. In 2016, 538 still "missed" but estimated that Trump had chances of [about 30%](https://projects.fivethirtyeight.com/2016-election-forecast/).
@@ -26,11 +26,13 @@ But the model also has its weaknesses:
 
 So what does it say?
 
-![png](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
+(You can click the image to view it full size)
+
+[![Mandates Forecast](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
 
 The final forecast has Blue & White doing slightly better than the Likud. Due to the many parties, the high threshold, and the lack of polls up to election day, the uncertainty is high. The only thing that we can say with relative certainty is that the four parties - Likud, Blue & White, Labor, and United Torah Judaism - will be in the next Knesset. Based on the current polls, Likud might get anywhere between 23 and 34, while Blue and White somewhere between 25 and 36. The exact distribution and the possible range of mandates (in the 95% confidence level) is given below the party mandate bars. We can see how the uncertainty develops in the graph below:
 
-![png](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-parties-english.png)
+[![Party Support over Time](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-parties-english.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-parties-english.png)
 
 To deal with all the uncertainty, the model chooses a representative sample that it believes is the closest to the average. We are now in a poll "blackout" until election day. During this time a lot can happen. In 2015, the very last polls appeared to indicate a last minute game-changer in favor of "Mahane Zioni" and political commentators suggested Likud was certain to lose. This directly supported the Likud's message throughout the campaign and as a result, many voters for smaller right-wing parties apparently decided to change their vote at the last minute to Likud. In contrast to the last-minute polls, Likud won by a big margin leading to that year's "surprise."
 
@@ -50,7 +52,7 @@ Blue & White|Likud|Labor|Hadash-Taal|UTJ|Shas|Right Union|New Right|Zehut|Kulanu
 
 ## Coalitions Forecast
 
-![png](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-coalitions-english.png)
+[![Coalitions Forecast](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-coalitions-english.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-coalitions-english.png)
 
 Even if one or two parties do not make it, the coalitions that can form are more certain. In 2015, Netanyahu formed a very narrow government of 61 mandates. This seems almost certain to be possible here -- there is a high chance of approximately 90% that Netanyahu will be able to form a right-wing government, and a good 60% chance that Netanyahu will be able to form a stable government of 65 mandates or more. In fact, the average coalition is expected to be 66 mandates. In such a case, the smaller parties should hope to achieve at least 6 mandates - which will force Netanyahu to give in to any of their demands. Parties that get 4 or 5 mandates would have much less bargaining power.
 
