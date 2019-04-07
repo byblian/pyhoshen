@@ -7,3 +7,4 @@ minima:
   social_links:
     twitter: pyhoshen
 show_excerpts: true
+except_separator: <!--more-->
