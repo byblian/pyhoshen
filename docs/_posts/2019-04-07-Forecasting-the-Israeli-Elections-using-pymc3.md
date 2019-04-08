@@ -4,9 +4,11 @@ author: Yitzhak Sapir
 ---
 Welcome!
 
-This is a very technical discussion explaining how to run the model and reproduce the results of the final forecast. For the political analysis of the final forecast, go [here](http://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html).
+For the political analysis of the final forecast, go [here](http://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html).
 
-Election polls are possibly the clearest most public example of statistics that we encounter in lives. We depend on them, as voters (or candidates), to understand where the election stands. They can contribute to tactical voting on the voters' part, and can influence decisions on the part of candidates and politicians. But what do they mean? How does the margin-of-error figure into the numbers? What are we to understand if two polls have conflicting results?
+This post is a very technical discussion explaining how to run the model and reproduce the results of the final forecast.
+
+Election polls are possibly the clearest and most public example of statistics that we encounter in our lives. We depend on them, as voters (or candidates), to understand where the election stands. They can contribute to tactical voting on the voters' part, and can influence decisions on the part of candidates and politicians. But what do they mean? How does the margin-of-error figure into the numbers? What are we to understand if two polls have conflicting results?
 <!--more-->
 Here in Israel, the issue is even more pronounced: It is 2019, and there are currently over a dozen parties that have some viable chance of receiving some seats in parliament (called the Knesset). But a whole bunch of them are trailing near the "threshold." The threshold - at 3.25% - means that if a party does not pass the threshold, its votes are divided up amongst the other parties using a complex algorithm called Bader-Ofer. Multiple polls taken at the same time might show different parties passing the threshold, and this naturally affects the final results.
 
