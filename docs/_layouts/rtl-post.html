@@ -7,7 +7,7 @@ layout: default
     <h1 class="post-title p-name" dir="rtl" itemprop="name headline">{{ page.rtl_title | page.title | escape }}</h1>
     <p class="post-meta" dir="rtl">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+        {%- assign date_format = site.minima.date_format | default: "%-d/%-m/%Y" -%}
         {{ page.date | date: date_format }}
       </time>
       {%- if page.author -%}
