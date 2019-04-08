@@ -1,5 +1,6 @@
 ﻿---
 title: 2019 Election Final Forecast - Hebrew
+rtl_title: תחזית סופית לבחירות 2019
 author: יצחק ספיר
 layout: rtl-post
 ---
