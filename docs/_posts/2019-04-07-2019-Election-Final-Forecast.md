@@ -14,7 +14,7 @@ In almost every Israeli election, we have an "election-day surprise." The polls 
 The final forecast has Blue & White doing slightly better than the Likud. Due to the many parties, the high threshold, and the lack of polls up to election day, the uncertainty is high. The only thing that we can say with relative certainty is that the four parties - Likud, Blue & White, Labor, and United Torah Judaism - will be in the next Knesset, while all the rest have some probability that they might fail to make the threshold. Based on the current polls, Likud might get anywhere between 23 and 34, while Blue and White somewhere between 25 and 36. The exact distribution is given below the party mandate bars. The chances any particular party will fail to pass the threshold is given above the small red bar next to it. The range (such as 23 - 34 for Likud or 25 - 36 for Blue and White) is the range of mandates in the 95% confidence interval for the party.
 <!--more-->
 
-We can see how the supports for the various parties as well as the uncertainty (especially during the "poll blackout" period) in the graph below:
+We can see how the support levels for the various parties as well as the uncertainty evolve in the graph below (especially during the "poll blackout" period):
 
 [![Party Support over Time](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-parties-english.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-parties-english.png)
 (Click to view in full size)
