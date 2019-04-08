@@ -1,6 +1,7 @@
 ---
 title: 2019 Election Final Forecast
 author: Yitzhak Sapir
+datatable: true
 ---
 In almost every Israeli election, we have an "election-day surprise." The polls say one thing - the results come out different. Can we do better?
 
@@ -44,6 +45,7 @@ The primary problem this year is that we have to contend with multiple parties t
 
 To give an idea of the way the various party mandates might vary, here are the top 5 potential outcomes (out of the 5000 samples):
 
+<div class="datatable-begin"></div>
 Blue & White|Likud|Labor|Hadash-Taal|UTJ|Shas|Right Union|New Right|Zehut|Kulanu|Raam-Balad|Meretz|Magen|Gesher|Yisrael Beitenu
 ------------|-----|-----|-----------|---|----|-----------|---------|-----|------|----------|------|-----|------|---------------
 31|28|10|8|7|6|6|6|5|5|4|4|0|0|0
@@ -51,6 +53,7 @@ Blue & White|Likud|Labor|Hadash-Taal|UTJ|Shas|Right Union|New Right|Zehut|Kulanu
 31|29|8|7|7|5|7|7|4|5|4|6|0|0|0
 31|29|9|9|7|6|7|6|7|4|0|5|0|0|0
 32|30|9|8|7|5|5|6|5|4|4|5|0|0|0
+<div class="datatable-end"></div>
 
 ## Coalitions Forecast
 
