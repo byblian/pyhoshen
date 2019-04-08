@@ -4,6 +4,9 @@ rtl_title: תחזית סופית לבחירות 2019
 author: יצחק ספיר
 layout: rtl-post
 ---
+<style>
+table { display: block; overflow-x: auto; white-space: nowrap }
+</style>
 כמעט בכל מערכת בחירות, יש "הפתעת בחירות." הסקרים אומרים משהו אחד - והתוצאות אחרת. האם ניתן לעשות יותר טוב?
 
 [![תחזית מנדטים](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-hebrew.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-hebrew.png)

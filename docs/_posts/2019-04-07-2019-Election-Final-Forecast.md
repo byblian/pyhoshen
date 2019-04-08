@@ -2,6 +2,10 @@
 title: 2019 Election Final Forecast
 author: Yitzhak Sapir
 ---
+<style>
+table { display: block; overflow-x: auto; white-space: nowrap }
+</style>
+
 In almost every Israeli election, we have an "election-day surprise." The polls say one thing - the results come out different. Can we do better?
 
 [![Mandates Forecast](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)](/images/2019-04-07-2019-Election-Final-Forecast/2019-04-07-2019-Election-Final-Forecast-mandates-english.png)
