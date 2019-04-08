@@ -1,5 +1,5 @@
 ﻿---
-title: 2019 Election Final Forecast (Hebrew)
+title: Hebrew: תחזית הסקרים הסופית 2019
 author: יצחק ספיר
 layout: rtl-post
 ---
