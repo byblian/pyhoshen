@@ -49,7 +49,7 @@ The primary problem this year is that we have to contend with multiple parties t
 To give an idea of the way the various party mandates might vary, here are the top 5 potential outcomes (out of the 5000 samples):
 
 Blue & White|Likud|Labor|Hadash-Taal|UTJ|Shas|Right Union|New Right|Zehut|Kulanu|Raam-Balad|Meretz|Magen|Gesher|Yisrael Beitenu
-------------|-----|-----|-----------|---|----|-----------|---------|-----|------|----------|------|-----|------|---------------
+:----------:|:---:|:---:|:---------:|:-:|:--:|:---------:|:-------:|:---:|:----:|:--------:|:----:|:---:|:----:|:-------------:
 31|28|10|8|7|6|6|6|5|5|4|4|0|0|0
 30|29|10|6|6|5|8|6|5|6|4|5|0|0|0
 31|29|8|7|7|5|7|7|4|5|4|6|0|0|0
