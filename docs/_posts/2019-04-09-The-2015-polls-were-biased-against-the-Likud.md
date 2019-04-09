@@ -35,7 +35,7 @@ One might argue that the polls don't show the full picture. The exit polls were 
 
 Poll/Forecast|Type|Error|Likud|Zionist Union|Joint Arab List|Yesh Atid|Kulanu|Jewish Home|Shas|UTJ|Yisrael Beitenu|Meretz|Yachad
 :--:|:--:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
-Knesset Jeremy|Forecast|10.09|22|25|12|12|9|12|7|5|7|5|4
+[Knesset Jeremy](https://knessetjeremy.com/2015/03/17/2015-knesset-jeremy-election-phase-2-prediction-analysis/)|Forecast|10.09|22|25|12|12|9|12|7|5|7|5|4
 pyHoshen (\\(e^{-diff}\\))|Forecast|9.17|23|26|13|12|9|11|7|6|4|5|4
 pyHoshen (\\(\\frac{1}{diff^2}\\))|Forecast|10.77|22|27|13|12|8|12|7|7|4|4|4
 [Project 61 #1](https://twitter.com/Nehemia_GA/status/577588144628862976)|Forecast|8.94|24|24|14|10|8|11|8|7|5|4|5
