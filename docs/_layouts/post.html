@@ -4,10 +4,10 @@ layout: default
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" dir="rtl" itemprop="name headline">{{ page.rtl_title | page.title | escape }}</h1>
-    <p class="post-meta" dir="rtl">
+    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    <p class="post-meta">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-        {%- assign date_format = site.minima.date_format | default: "%-d/%-m/%Y" -%}
+        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         {{ page.date | date: date_format }}
       </time>
       {%- if page.author -%}
@@ -15,7 +15,7 @@ layout: default
       {%- endif -%}</p>
   </header>
 
-  <div class="post-content e-content" dir="rtl" itemprop="articleBody">
+  <div class="post-content e-content" itemprop="articleBody">
     {{ content }}
   </div>
 

@@ -1,6 +1,7 @@
 ---
 title: Forecasting the Israeli Elections using pymc3
 author: Yitzhak Sapir
+math: true
 ---
 Welcome!
 

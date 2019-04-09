@@ -1,6 +1,7 @@
 ---
 title: The 2015 polls were biased against the Likud
 author: Yitzhak Sapir
+math: true
 ---
 <style>
 table { display: block; overflow-x: auto; white-space: nowrap }
