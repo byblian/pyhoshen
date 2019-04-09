@@ -25,7 +25,7 @@ TNS (Channel 1)|5.66|27|26|12|11|9|8|7|6|5|5|4
 Panels (Knesset)|5.29|26|27|13|12|10|9|7|6|5|5|0
 Exit Poll Average|4.34|27.33|26.67|12.67|11|9.67|8|7|6.33|5|5|1.33
 
-While better than all the forecasts and final polls, the exit poll error (computed as \\(\\sqrt{\\Sigma diff^2}\\) is around 4-5 mandates. How can we explain this?
+While better than all the forecasts and final polls, the exit poll error (computed as \\(\\sqrt{\\Sigma diff^2}\\)) is around 4-5 mandates. How can we explain this?
 
 In contrast to the final polls (and the forecasts based on them), the exit polls already included any movement of voters who might have switched from Jewish Home or Yachad to Likud. It seems that the campaign polls as well as the exit polls were biased against the Likud by a few percentage points.
 
