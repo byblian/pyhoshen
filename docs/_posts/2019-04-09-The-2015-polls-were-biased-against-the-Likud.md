@@ -36,8 +36,8 @@ One might argue that the polls don't show the full picture. The exit polls were 
 Poll/Forecast|Type|Forecast|Error|Likud|Zionist Union|Joint Arab List|Yesh Atid|Kulanu|Jewish Home|Shas|UTJ|Yisrael Beitenu|Meretz|Yachad
 :--:|:--:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
 Knesset Jeremy|Forecast|10.09|22|25|12|12|9|12|7|5|7|5|4
-pyHoshen ($e^-diff$)|Forecast|9.17|23|26|13|12|9|11|7|6|4|5|4
-pyHoshen ($1/diff^2$)|Forecast|10.77|22|27|13|12|8|12|7|7|4|4|4
+pyHoshen (\(e^-diff\))|Forecast|9.17|23|26|13|12|9|11|7|6|4|5|4
+pyHoshen (\(1/diff^2\))|Forecast|10.77|22|27|13|12|8|12|7|7|4|4|4
 [Project 61 #1](https://twitter.com/Nehemia_GA/status/577588144628862976)|Forecast|8.94|24|24|14|10|8|11|8|7|5|4|5
 [Batel Be60](http://www.batelbe60.com/2015/03/blog-post_15.html)|Forecast|11.75|20|25|14|13|11|11|8|6|4|4|4
 [Midgam (Channel 2)](https://www.mako.co.il/news-military/politics-q1_2015/Article-c446c18f3931c41004.htm)|Poll|10.39|22|26|13|12|8|11|7|6|5|5|5
@@ -45,6 +45,6 @@ Midgam Project (Channel 10)|12|20|24|13|12|10|12|7|7|5|5|5
 Smith (Reshet B)|10.58|21|25|13|11|9|11|9|6|6|5|4
 Panels (Maariv)|11.13|21|25|13|13|10|11|7|6|4|5|5
 
-Above I include two pyHoshen forecasts - #1 which is the one used in the 2019 final forecast integrates adjacent days using $e^-diff$. Forecast #2 integrates adjacent days using $1/diff^2$. It was based on the above results that gave Likud a slight boost that I decided to use the $e^-diff$ in the current forecast. pyHoshen is completely new forecasting code. My earlier code in 2015 failed miserably - with a 13.41 error, that used simpler linear regression techniques. Using the correlation matrix and full MCMC modelling were part of my takeaways from this failure.
+Above I include two pyHoshen forecasts - #1 which is the one used in the 2019 final forecast integrates adjacent days using \(e^-diff\). Forecast #2 integrates adjacent days using \(1/{diff^2}\). It was based on the above results that gave Likud a slight boost that I decided to use the $e^-diff$ in the current forecast. pyHoshen is completely new forecasting code. My earlier code in 2015 failed miserably - with a 13.41 error, that used simpler linear regression techniques. Using the correlation matrix and full MCMC modelling were part of my takeaways from this failure.
 
 The forecasts are off by 9-12 whereas the polls are off by 10-12. Some forecasts did better, others worse. But all the forecasts suffered from both the systematic polling error and the "poll blackout" during which voters apparently switched to Likud.

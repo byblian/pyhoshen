@@ -82,7 +82,7 @@ Having initialized let's set up the model. Let's go through the initialization p
 * house_effects_model - We use the "add-mean" model to account for house effects. This model specifies that each pollster has a certain additive factor for each party that is added to the actual party's support at that time. There are various house effects models, but this seems to be the most stable and allows the model to converge. 
 * min_polls_per_pollster - To avoid throwing off the additive mean, we filter out pollsters that have only one poll. In practice, this meant we filtered out only one pollster.
 * polls_since - We use all the polls since Feb 21, 2019 (the day the party lists were finalized)
-* adjacent_day_fn - This function defines the prediction of a poll on adjacent days. In this case, we use $e^{-diff}$, where diff is the offset in days.
+* adjacent_day_fn - This function defines the prediction of a poll on adjacent days. In this case, we use \(e^{-diff}\), where diff is the offset in days.
 * eta - A technical parameter that specifies the prior for the eta of the LKJ correlation matrix distribution.
 
 
