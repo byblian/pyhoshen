@@ -5,9 +5,12 @@ author: Yitzhak Sapir
 <style>
 table { display: block; overflow-x: auto; white-space: nowrap }
 </style>
+Note: This post discusses takeaways from 2015. The Final Forecast for 2019 is [available and discussed here](http://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html).
+
 In a few hours, the exit polls will be published and afterwards we will also have the official count. But it is also interesting to look back and see how well the model did against the 2015 results. I did check my results against 2015 as well as 2009 and 2013. Here are the results for 2015:
 
 ![2015 Results](/images/2019-04-09-The-2015-polls-were-biased-against-the-Likud/2019-04-09-The-2015-polls-were-biased-against-the-Likud-2015-Forecast.png)
+<!--more-->
 
 ## The Exit Polls
 
