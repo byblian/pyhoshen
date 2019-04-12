@@ -1,4 +1,4 @@
----
+﻿---
 title: The polls had systematic error but the model explained them well
 author: Yitzhak Sapir
 math: true
@@ -7,12 +7,14 @@ math: true
 table { display: block; overflow-x: auto; white-space: nowrap }
 </style>
 
-The election is now over and the votes have been counted. We now even have official results and the polls were very clearly off. Indeed, the day after election day in Israel is usually called the pollsters' "Judgement Day." As a filler in the minutes leading to the broadcast of the exit polls, the Israeli satire show Eretz Nehederet even aired a skit showing veteran pollster Mina Tzemach chasing the voters who lie to her in the exit polls and using a duck and pi�ata in lieu of complex statistical models (in Hebrew):
+The election is now over and the votes have been counted. We now even have official results and the polls were very clearly off. Indeed, the day after election day in Israel is usually called the pollsters' "Judgement Day." As a filler in the minutes leading to the broadcast of the exit polls, the Israeli satire show Eretz Nehederet even aired a skit showing veteran pollster Mina Tzemach chasing the voters who lie to her in the exit polls and using a duck and piñata in lieu of complex statistical models (in Hebrew):
 
 <iframe width="632" height="473" src="https://www.mako.co.il/AjaxPage?jspName=embedHTML5video.jsp&galleryChannelId=770e3d99ade16110VgnVCM1000004801000aRCRD&videoChannelId=17ef630d7b20a610VgnVCM2000002a0c10acRCRD&vcmid=e03754d84530a610VgnVCM2000002a0c10acRCRD" frameborder="0" allowfullscreen></iframe>
-<!--more-->
+<p>
 
 I will discuss the reasons the polls are so often off in Israel in a different post. But here I want to discuss the performance of the model as a guide to understanding the polls.
+
+<!--more-->
 
 We might ask - what do we expect of a model? Ideally, we would somehow want the model to predict the most accurate results. But the model's basic data is always the polls themselves. The model could be adjusted for likely voters, fundamentals, and momentum and trends among undecided voters. But if there is systematic error in the polls, the prediction will likewise be off and any adjustment will only have a minor effect.
 
@@ -22,7 +24,7 @@ In light of this, what we might ask of a model is that it also present us the va
 A common method of computing poll errors is to use a distance formula. Using a distance formula, the final pre-election polls erred by an average of 14.53 mandates:
 
 Pollster|Publication|Error|B&W-Likud|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
-:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
+:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
 Final [(PDF)](https://bechirot21.bechirot.gov.il/election/Documents/%D7%93%D7%95%D7%91%D7%A8%20%D7%95%D7%A2%D7%93%D7%AA%20%D7%94%D7%91%D7%97%D7%99%D7%A8%D7%95%D7%AA/letter_results.pdf)|Election|0|-1|36|35|8|7|6|6|5|5|4|4|4|0|0|0
 Midgam Proj. [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/13news_5.4.19.pdf)|Ch. 13|15.02|-0.8|28.4|27.6|5|6|11|6|4|7|5|4|4|6|6|0
 Smith [(Article)](https://www.maariv.co.il/elections2019/polls/Article-692912)|Maariv|14.00|2|27|29|6|7|9|7|4|6|5|5|4|6|5|0
