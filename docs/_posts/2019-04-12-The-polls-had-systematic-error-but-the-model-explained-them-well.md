@@ -15,12 +15,12 @@ I will discuss the reasons the polls are so often off in Israel in a different p
 
 <!--more-->
 
-We might ask - what do we expect of a model? Ideally, we would somehow want the model to predict the most accurate results. But the model's basic data is always the polls themselves. The model could be adjusted for likely voters, fundamentals, and momentum and trends among undecided voters. But if there is systematic error in the polls, the prediction will likewise be off and any adjustment will only have a minor effect.
+We might ask - what do we expect of a model? Ideally, we would somehow want the model to predict the most accurate results. But the model's basic data is always the polls themselves. The model could be adjusted for likely voters, fundamentals, and momentum and trends among undecided voters. But if there is systematic error in the polls, the [prediction](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html) will likewise be off and any adjustment will only have a minor effect.
 
 In light of this, what we might ask of a model is that it also present us the variability that we can expect. We know what the polls say, but how far from the polls can the actual result be?
 
 ## Pre-election Poll Errors
-A common method of computing poll errors is to use a distance formula. Using a distance formula, the final pre-election polls erred by an average of 14.53 mandates:
+A common method of computing poll errors is to use a distance formula, presented here under "Error":
 
 Pollster|Publication|Error|B&W-Likud|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
 :-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
@@ -35,7 +35,7 @@ Smith [(Article)](https://www.jpost.com/Israel-News/Post-poll-predicts-easy-win-
 Midgam [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/yedioth_4.4.19.pdf)|Yediot Achronot|14.97|4|26|30|5|7|11|7|4|5|5|5|4|6|5|0
 Maagar Mochot [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/israel_hayom_4.4.19.pdf)|Yisrael Hayom|15.81|5|27|32|5|8|10|6|0|6|8|6|0|6|6|0
 
-The error of the various final pre-election polls ranges from 13.34 to 15.02 and averages at 14.53.
+Using a distance formula, the final pre-election polls had errors ranging from 13.34 to 15.02 and averaging at 14.53.
 
 ## How the Model Performed
 With the final results, we can now also compare the model's forecast to the polls and to another forecast by Knesset Jeremy. For comparison, I'm also adding here the simple average of all pre-election polls:
@@ -47,9 +47,9 @@ Poll Average|13.85|2.02|27.71|29.73|5.22|6.67|9.67|6.89|2.89|6.11|5.78|4.56|3.11
 [pyHoshen](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html)|13.86|3|28|31|6|7|10|8|0|6|4|5|4|6|5|0
 [Knesset Jeremy](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/)|12.49|-1|30|29|5|6|9|7|4|6|5|4|4|6|5|0
 
-So first, hats off to Knesset Jeremy whose prediction beat all the polls. Its "distance" is 12.49 about one mandate less than the closest poll by TNS at 13.34. It also correctly predicted that Likud would have a 1 mandate advantage over Blue & White!
+So first, hats off to Knesset Jeremy whose [prediction](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/) beat all the polls. Its "distance" is 12.49 which is about one mandate less than the closest poll by TNS at 13.34. It also correctly predicted that Likud would have a 1 mandate advantage over Blue & White!
 
-But my model's prediction also was relatively good. Its average error closely represents the error of the poll average at approximately the average error of all the final pre-election polls. We can see this in the graph below:
+But [the pyHoshen model's prediction](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html) also was relatively good. Its average error closely represents the error of the poll average at approximately the average error of all the final pre-election polls. We can see this in the graph below:
 
 ![Final Pre-election Poll Errors and the Model](/images/2019-04-12-The-model-explained-the-polls-well/2019-04-12-The-model-explained-the-polls-well-poll-and-model-errors.png)
 
@@ -69,12 +69,12 @@ For Gesher and Yisrael Beitenu which were predicted not to pass, the interval wa
 
 At the time it might have seemed the confidence intervals were a bit too extreme -- it predicted only four parties to be definitely clear of the threshold! But it's now clear that having 5 as a low end for Labor, or 34-36 as the high end for Likud and Blue and White was actually necessary. So as a tool to understand the polls, it did very well -- giving us both the average, and covering the expected variability.
 
-The model also had Netanyahu's potential right-wing coalition partners at an average of 66 mandates (as did Knesset Jeremy). The final right wing partners for the coalition number at 65 mandates.
+The model also had Netanyahu's potential right-wing coalition partners at an average of 66 mandates (as did Knesset Jeremy). This is only one off from the actual results. The total mandates of potential right wing partners for the coalition is at 65 mandates.
 
 ## Conclusions
-The final prediction of the pyHoshen model was based on the polls of 48 days since Feb 21, 2019 when the party lists were finalized. Based on these polls it also computed a correlation matrix and "pollster house effects." While we do not have any way (independent of the model) to measure these, the correlation matrix did correctly find some conclusions such as the negative correlation between Hadash-Taal and Raam-Balad.
+The final prediction of the pyHoshen model was based on the polls of 48 days since Feb 21, 2019 when the party lists were finalized. Based on these polls it also computed a correlation matrix and "pollster house effects." While we do not have any way (independent of the model) to measure these, the correlation matrix did correctly find some conclusions such as the negative correlation between Hadash-Taal and Raam-Balad. It did this simply by analyzing how the various parties' support varied over time.
 
-It is disappointing that we have such a severe systematic error and as a result such a high variability. The high variability indicating that the Likud was expected anywhere between 25 and 34 or the New Right anywhere between 0 and 11 mandates leave us with much uncertainty. But this is not due to the model which simply told us the correct uncertainty to expect so much as the polls themselves. The polls' poor performance (yet again) is a separate issue that has to do with the quality of the polls. Furthermore, the fact that the Likud's 36 mandates is not covered by the 95% confidence interval and that several other parties poll at the edges of the 95% confidence interval is probably an indication that the systematic polling error is more than simply "voters changing their minds" and probably indicates an issue with the underlying pollster methodology.
+It is disappointing that we have such a severe systematic error and as a result such a high variability. The high variability indicating that the Likud was expected anywhere between 25 and 34 or the New Right anywhere between 0 and 11 mandates leave us with much uncertainty. But this is not due to the model which simply told us the correct uncertainty to expect so much as the polls themselves. The polls' poor performance is a separate issue that has to do with the quality of the polls. 
 
 Despite the poor poll performance, we had much better information this year than in previous years as to what the polls actually said due to legal challenges against the polling firms. For example, in previous, parties polled below the threshold would be presented as "0" if at all. This year, the pollsters gave us the support percentage they polled those parties. For example, Yisrael Beitenu got 4.02% and 5 mandates in the final results. Final pre-election polls had it borderline. Some gave it 5 but others gave it 4 or 0. But we also knew that those who polled it at 0 mandates actually had it about halfway to the threshold at 3.25%. Maagar Mochot polled them at 2% while TNS polled them at 2.4%. This is information we simply do not have for previous election cycles and it allowed the model to predict Yisrael Beitenu at a 37% chance of passing the threshold.
 
