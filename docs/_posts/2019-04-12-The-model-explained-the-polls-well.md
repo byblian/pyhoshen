@@ -9,7 +9,7 @@ table { display: block; overflow-x: auto; white-space: nowrap }
 
 The election is now over and the votes have been counted. We now even have official results and the polls were very clearly off. Indeed, the day after election day in Israel is usually called the pollsters' "Judgement Day." As a filler in the minutes leading to the broadcast of the exit polls, the Israeli satire show Eretz Nehederet even aired a skit showing veteran pollster Mina Tzemach chasing the voters who lie to her in the exit polls and using a duck and piñata in lieu of complex statistical models (in Hebrew):
 
-<iframe width="632" height="473" src 2="https://www.mako.co.il/AjaxPage?jspName=embedHTML5video.jsp&galleryChannelId=770e3d99ade16110VgnVCM1000004801000aRCRD&videoChannelId=17ef630d7b20a610VgnVCM2000002a0c10acRCRD&vcmid=e03754d84530a610VgnVCM2000002a0c10acRCRD" frameborder="0" allowfullscreen></iframe>
+<iframe width="632" height="473" src="https://www.mako.co.il/AjaxPage?jspName=embedHTML5video.jsp&galleryChannelId=770e3d99ade16110VgnVCM1000004801000aRCRD&videoChannelId=17ef630d7b20a610VgnVCM2000002a0c10acRCRD&vcmid=e03754d84530a610VgnVCM2000002a0c10acRCRD" frameborder="0" allowfullscreen></iframe>
 <!--more-->
 
 I will discuss the reasons the polls are so often off in Israel in a different post. But here I want to discuss the performance of the model as a guide to understanding the polls.
