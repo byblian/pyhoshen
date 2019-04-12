@@ -1,5 +1,5 @@
 ---
-title: The polls had systematic error, but the model explained them well
+title: "The polls had systematic error, but the model explained them well"
 author: Yitzhak Sapir
 math: true
 ---
