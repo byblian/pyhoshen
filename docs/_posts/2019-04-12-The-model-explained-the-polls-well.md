@@ -50,7 +50,7 @@ So first, hats off to Knesset Jeremy whose prediction beat all the polls. Its "d
 
 But my model's prediction also was relatively good. Its average error closely represents the error of the poll average at approximately the average error of all the final pre-election polls. We can see this in the graph below:
 
-![Final Pre-election Poll Errors and the Model](../images/2019-04-12-The-model-explained-the-polls-well/2019-04-12-The-model-explained-the-polls-well-poll-and-model-errors.png)
+![Final Pre-election Poll Errors and the Model](/images/2019-04-12-The-model-explained-the-polls-well/2019-04-12-The-model-explained-the-polls-well-poll-and-model-errors.png)
 
 The errors for the various polls are plotted above in blue with the average error at 14.53 in dark blue. The error of pyHoshen is slightly better than this, and Knesset Jeremy's even more.
 
