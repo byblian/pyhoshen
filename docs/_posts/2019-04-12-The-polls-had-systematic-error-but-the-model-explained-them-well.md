@@ -10,7 +10,6 @@ table { display: block; overflow-x: auto; white-space: nowrap }
 The election is now over and the votes have been counted. We now even have official results and the polls were very clearly off. Indeed, the day after election day in Israel is usually called the pollsters' "Judgement Day." As a filler in the minutes leading to the broadcast of the exit polls, the Israeli satire show Eretz Nehederet even aired a skit showing veteran pollster Mina Tzemach chasing the voters who lie to her in the exit polls and using a duck and piñata in lieu of complex statistical models (in Hebrew):
 
 <iframe width="632" height="473" src="https://www.mako.co.il/AjaxPage?jspName=embedHTML5video.jsp&galleryChannelId=770e3d99ade16110VgnVCM1000004801000aRCRD&videoChannelId=17ef630d7b20a610VgnVCM2000002a0c10acRCRD&vcmid=e03754d84530a610VgnVCM2000002a0c10acRCRD" frameborder="0" allowfullscreen></iframe>
-<p>
 
 I will discuss the reasons the polls are so often off in Israel in a different post. But here I want to discuss the performance of the model as a guide to understanding the polls.
 
@@ -61,7 +60,7 @@ We can also explain pyHoshen's conclusions: The model predicted Yisrael Beitenu 
 ## The Confidence Interval
 But, as we mentioned above, even if the polls have systematic error which will affect our prediction, it would be nice to have an indication of how far the true result could differ from the prediction. The model provided an indication in the form  of 95% confidence intervals for the results:
 
--|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
+&#xfeff;|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
 :-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
 Final|36|35|8|7|6|6|5|5|4|4|4|0|0|0
 pyHoshen 95%|23-34|25-36|0-10|4-11|5-14|0-12|0-7|0-12|0-9|0-9|0-8|0-11|0-10|0-5
