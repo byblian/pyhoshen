@@ -49,16 +49,16 @@ Poll Average|13.85|2.02|27.71|29.73|5.22|6.67|9.67|6.89|2.89|6.11|5.78|4.56|3.11
 
 So first, hats off to Knesset Jeremy whose [prediction](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/) beat all the polls. Its "distance" is 12.49 which is about one mandate less than the closest poll by TNS at 13.34. It also correctly predicted that Likud would have a 1 mandate advantage over Blue & White!
 
-But [the pyHoshen model's prediction](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html) also was relatively good. Its average error closely represents the error of the poll average at approximately the average error of all the final pre-election polls. We can see this in the graph below:
+But [the pyHoshen model's prediction](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html) also was relatively good. We can see this in the graph below:
 
 ![Final Pre-election Poll Errors and the Model](/images/2019-04-12-The-model-explained-the-polls-well/2019-04-12-The-model-explained-the-polls-well-poll-and-model-errors.png)
 
-The errors for the various polls are plotted above in blue with the average error at 14.53 in dark blue. The error of pyHoshen is slightly better than this, and Knesset Jeremy's even more.
+The errors for the various polls are plotted above in blue with the average error of the polls at 14.53 in dark blue. The error of pyHoshen is slightly better than this. In fact, if we take the simple poll-average and compute its error (as in the table above) we get 13.85, very close to pyHoshen's error.
 
-We can also explain pyHoshen's conclusions: The model predicted Yisrael Beitenu would not pass, and this was based on two pollsters (Maagar Mochot and TNS) which showed it below the threshold. It had Raam Balad passing because only one pollster (Maagar Mochot) had them below the threshold. It also had Blue and White passing Likud by 3 mandates. Indeed the average difference is about 2 across the polls.
+We can also explain pyHoshen's conclusions by simply looking at the final polls: The model predicted Yisrael Beitenu would not pass, and this was based on two separate pollsters (Maagar Mochot and TNS) which showed the party below the threshold. It had Raam Balad passing, because most pollsters had them passing. Only one pollster (Maagar Mochot) had them below the threshold. It also had Blue and White passing Likud by 3 mandates. Indeed the average difference is about 2 across the polls.
 
 ## The Confidence Interval
-But, as we mentioned above, even if the polls have systematic error which will affect our prediction, it would be nice to have an indication of how far the true result could differ from the prediction. The model provided an indication in the form  of 95% confidence intervals for the results:
+But, as we mentioned above, if the polls have systematic error it will affect our prediction. But it would be nice to have an indication of how far the true result could differ from the prediction. The model provided such an indication in the form of 95% confidence intervals for the results:
 
 &#xfeff;|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
 :-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
