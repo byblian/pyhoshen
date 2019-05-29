@@ -19,7 +19,7 @@ So, one month ahead of the elections,  I reviewed the results of fundamentals mo
 
 ## A Fundamentals Model
 
-Having now passed the elections, it is time to consider how this model can perform better. In Israel, I believe a fundamentals model can provide an improvement. A [recent study](https://twitter.com/amit_segal/status/1126732393845366784) by Amit Segal and Nehemia Gershuni-Aylho shows that the voting patterns in the major voting blocs is extremely static. Comparing the vote in 2015 and 2019 in various major cities, the voting bloc representation was the same (&plusmn;1%). This is exactly what a fundamentals model would capture - the historical patterns that indicate how people vote based on their demographics.
+Having now passed the elections, it is time to consider how this model can perform better. In Israel, I believe a fundamentals model can provide an improvement. A [recent study (Hebrew)](https://twitter.com/amit_segal/status/1126732393845366784) by Amit Segal and Nehemia Gershuni-Aylho shows that the voting patterns in the major voting blocs is extremely static. Comparing the vote in 2015 and 2019 in various major cities, the voting bloc representation was the same (&plusmn;1%). This is exactly what a fundamentals model would capture - the historical patterns that indicate how people vote based on their demographics.
 
 A second reason to be optimistic about the contribution of the fundamentals model in Israel is the "poll blackout" period. In the USA, where polls run up to election day, the final forecast is largely based on the polls-only model with the fundamentals providing only a very small contribution. But the "poll blackout" period means that the fundamentals model would have a larger impact on the final forecast.
 
