@@ -10,11 +10,12 @@ Note: This post discusses takeaways from 2019. The Final Forecast for 2019 is [a
 
 It has been almost two months since the elections. The polls missed quite a few details, indicating a systematic error. However, I was [happy with the model](https://pyhoshen.org/2019/04/12/The-polls-had-systematic-error-but-the-model-explained-them-well.html) - for a polls-only model it captured the both the poll average and gave a good idea of the final result in its margin of error.
 
-It took me 3 months to fully develop the model. I started experimented with the system around Jan 15, 2019. It took about a month to get a converging model that captured the polls. I continued improving on the model over two months fixing various bugs. 
+I considered adding a fundamentals component. Such a fundamentals model is [described here (PDF)](http://lukas-stoetzer.org/assets/forecast-multiparty_appendix.pdf). A fundamentals model has the potential to improve on the results of a polls-only model.
+<!--more-->
 
-By this time, one month ahead of the elections, I considered adding a fundamentals component. Such a fundamentals model is [described here (PDF)](http://lukas-stoetzer.org/assets/forecast-multiparty_appendix.pdf). A fundamentals model has the potential to improve on the results of a polls-only model. Due to the lack of time, I also reviewed the results of fundamentals models on sites such as 538 - The results of the polls + fundamentals models were very close to the polls-only model, and did not seem to do much better.
+However, it took me 3 months to fully develop the model. I started experimented with the system around Jan 15, 2019. It took about a month to get a converging model that captured the polls. I continued improving on the model over two months fixing various bugs. 
 
-Thus, due to both lack of time and the apparent little impact on the final results, I decided to focus on the visualization aspects. For example, in the last month, I added the coalitions graph and added colors to indicate failure to reach the threshold or to pass 60 members in the coalition, which can be crucial to actually winning the election.
+So, one month ahead of the elections,  I reviewed the results of fundamentals models on sites such as 538 - The results of the polls + fundamentals models were very close to the polls-only model, and did not seem to do much better. Thus, due to both lack of time and the apparent little impact on the final results, I decided to focus on the visualization aspects. For example, in the last month, I added the coalitions graph and added colors to indicate failure to reach the threshold or to pass 60 members in the coalition, which can be crucial to actually winning the election.
 
 ## A Fundamentals Model
 
