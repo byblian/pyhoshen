@@ -22,32 +22,32 @@ In light of this, what we might ask of a model is that it also present us the va
 ## Pre-election Poll Errors
 A common method of computing poll errors is to use a distance formula, presented here under "Error":
 
-Pollster|Publication|Error|B&W-Likud|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
+Pollster|Publication|Error|B&W-Likud|Likud|Blue & White|Shas|UTJ|Hadash-Taal|Labor|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
 :-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
-Final [(PDF)](https://bechirot21.bechirot.gov.il/election/Documents/%D7%93%D7%95%D7%91%D7%A8%20%D7%95%D7%A2%D7%93%D7%AA%20%D7%94%D7%91%D7%97%D7%99%D7%A8%D7%95%D7%AA/letter_results.pdf)|Election|0|-1|36|35|8|7|6|6|5|5|4|4|4|0|0|0
-Midgam Proj. [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/13news_5.4.19.pdf)|Ch. 13|15.02|-0.8|28.4|27.6|5|6|11|6|4|7|5|4|4|6|6|0
-Smith [(Article)](https://www.maariv.co.il/elections2019/polls/Article-692912)|Maariv|14.00|2|27|29|6|7|9|7|4|6|5|5|4|6|5|0
-Maagar Mochot [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/radio103_5.4.19.pdf)|103FM|14.97|3|28|31|6|7|9|7|0|7|7|6|0|6|6|0
-Panels [(Article)](https://elections.walla.co.il/item/3228485)|Walla|13.78|1|29|30|5|6|10|8|4|7|6|0|4|6|5|0
-Midgam [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/news_4.4.19.pdf)|Ch. 12|14.63|4|26|30|5|7|10|7|5|5|5|5|4|6|5|0
-TNS [(Article)](https://twitter.com/kann_news/status/1113853811330822145)|Kann|13.34|-1|31|30|4|6|8|8|0|6|6|5|4|6|6|0
-Smith [(Article)](https://www.jpost.com/Israel-News/Post-poll-predicts-easy-win-for-Right-585821)|Jerusalem Post|14.28|1|27|28|6|6|9|6|5|6|5|5|4|5|4|4
-Midgam [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/yedioth_4.4.19.pdf)|Yediot Achronot|14.97|4|26|30|5|7|11|7|4|5|5|5|4|6|5|0
-Maagar Mochot [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/israel_hayom_4.4.19.pdf)|Yisrael Hayom|15.81|5|27|32|5|8|10|6|0|6|8|6|0|6|6|0
+Final [(PDF)](https://bechirot.gov.il/election/Documents/%D7%93%D7%95%D7%91%D7%A8%20%D7%95%D7%A2%D7%93%D7%AA%20%D7%94%D7%91%D7%97%D7%99%D7%A8%D7%95%D7%AA/elections21_final_results.pdf)|Election|0|0|35|35|8|8|6|6|5|5|4|4|4|0|0|0
+Midgam Proj. [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/13news_5.4.19.pdf)|Ch. 13|14.64|-0.8|28.4|27.6|5|6|6|11|4|7|5|4|4|6|6|0
+Smith [(Article)](https://www.maariv.co.il/elections2019/polls/Article-692912)|Maariv|13.42|2|27|29|6|7|7|9|4|6|5|5|4|6|5|0
+Maagar Mochot [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/radio103_5.4.19.pdf)|103FM|14.49|3|28|31|6|7|7|9|0|7|7|6|0|6|6|0
+Panels [(Article)](https://elections.walla.co.il/item/3228485)|Walla|13.42|1|29|30|5|6|8|10|4|7|6|0|4|6|5|0
+Midgam [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/news_4.4.19.pdf)|Ch. 12|14.00|4|26|30|5|7|7|10|5|5|5|5|4|6|5|0
+TNS [(Article)](https://twitter.com/kann_news/status/1113853811330822145)|Kann|13.11|-1|31|30|4|6|8|8|0|6|6|5|4|6|6|0
+Smith [(Article)](https://www.jpost.com/Israel-News/Post-poll-predicts-easy-win-for-Right-585821)|Jerusalem Post|13.78|1|27|28|6|6|6|9|5|6|5|5|4|5|4|4
+Midgam [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/yedioth_4.4.19.pdf)|Yediot Achronot|14.35|4|26|30|5|7|7|11|4|5|5|5|4|6|5|0
+Maagar Mochot [(PDF)](https://bechirot21.bechirot.gov.il/election/Decisions/Documents/%D7%A1%D7%A7%D7%A8%D7%99%D7%9D/israel_hayom_4.4.19.pdf)|Yisrael Hayom|15.23|5|27|32|5|8|6|10|0|6|8|6|0|6|6|0
 
-Using a distance formula, the final pre-election polls had errors ranging from 13.34 to 15.02 and averaging at 14.53.
+Using a distance formula, the final pre-election polls had errors ranging from 13.11 to 15.23 and averaging at 14.05.
 
 ## How the Model Performed
 With the final results, we can now also compare the model's forecast to the polls and to another forecast by Knesset Jeremy. For comparison, I'm also adding here the simple average of all pre-election polls:
 
-Forecast|Error|B&W-Likud|Likud|Blue & White|Shas|UTJ|Labor|Hadash-Taal|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
+Forecast|Error|B&W-Likud|Likud|Blue & White|Shas|UTJ|Hadash-Taal|Labor|Yisrael Beitenu|Right Union|Meretz|Kulanu|Raam-Balad|New Right|Zehut|Gesher
 :-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
-Final|0|-1|36|35|8|7|6|6|5|5|4|4|4|0|0|0
-Poll Average|13.85|2.02|27.71|29.73|5.22|6.67|9.67|6.89|2.89|6.11|5.78|4.56|3.11|5.89|5.33|0.44
-[pyHoshen](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html)|13.86|3|28|31|6|7|10|8|0|6|4|5|4|6|5|0
-[Knesset Jeremy](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/)|12.49|-1|30|29|5|6|9|7|4|6|5|4|4|6|5|0
+Final|0|0|35|35|8|8|6|6|5|5|4|4|4|0|0|0
+Poll Average|13.34|2.02|27.71|29.73|5.22|6.67|6.89|9.67|2.89|6.11|5.78|4.56|3.11|5.89|5.33|0.44
+[pyHoshen](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html)|13.34|3|28|31|6|7|8|10|0|6|4|5|4|6|5|0
+[Knesset Jeremy](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/)|12.17|-1|30|29|5|6|7|9|4|6|5|4|4|6|5|0
 
-So first, hats off to Knesset Jeremy whose [prediction](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/) beat all the polls. Its "distance" is 12.49 which is about one mandate less than the closest poll by TNS at 13.34. It also correctly predicted that Likud would have a 1 mandate advantage over Blue & White!
+So first, hats off to Knesset Jeremy whose [prediction](https://knessetjeremy.com/2019/04/07/knessetjeremy-phase-2-prediction-analysis/) beat all the polls. Its "distance" is 12.17 which is about one mandate less than the closest poll by TNS at 13.11. It was also very close in its prediction that Likud would have a 1 mandate advantage over Blue & White. The Likud sometimes had this mandate depending on the progress of the count, and this mandate is currently being [appealed in courts](https://www.theyeshivaworld.com/news/israel-news/1723870/high-court-seeking-additional-proof-in-petition-challenging-pindrus-eighth-seat.html).
 
 But [the pyHoshen model's prediction](https://pyhoshen.org/2019/04/07/2019-Election-Final-Forecast.html) also was relatively good. We can see this in the graph below:
 
