@@ -6,7 +6,7 @@ math: true
 <style>
 table { display: block; overflow-x: auto; white-space: nowrap }
 </style>
-[This post was updated May 29, 2019 to reflect final results after the final counting.]
+[This post was updated May 29, 2019 to reflect the final official results as published by the Elections Committee after the final counting.]
 
 The election is now over and the votes have been counted. We now even have official results and the polls were very clearly off. Indeed, the day after election day in Israel is usually called the pollsters' "Judgement Day." As a filler in the minutes leading to the broadcast of the exit polls, the Israeli satire show Eretz Nehederet even aired a skit showing veteran pollster Mina Tzemach chasing the voters who lie to her in the exit polls and using a duck and piñata in lieu of complex statistical models (in Hebrew):
 
