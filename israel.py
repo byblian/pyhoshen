@@ -272,9 +272,13 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           plots[0][i].grid(False)
           plots[0][i].tick_params(axis='both', which='both',left=False,bottom=False,labelbottom=False,labelleft=False)
           plots[0][i].set_facecolor('white')
+          for s in plots[0][i].spines.values():
+            s.set_visible(False)
           plots[1][i].grid(False)
           plots[1][i].tick_params(axis='y', which='both',left=False,labelleft=False)
           plots[1][i].set_facecolor('white')
+          for s in plots[1][i].spines.values():
+            s.set_visible(False)
         xlim_side = max(xlim_dists) / 2
         for i in range(num_passed_parties) :
           xlim = plots[1][i].get_xlim()
@@ -320,6 +324,8 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             failed_plot.grid(False)
             failed_plot.tick_params(axis='both', which='both',left=False,bottom=False,labelbottom=False,labelleft=False)
             failed_plot.set_facecolor('white')
+            for s in failed_plot.spines.values():
+              s.set_visible(False)
             failed_plots += [ failed_plot ]
         if num_failed_parties > 0:
             max_failed_xlim = max([fp.get_xlim()[1] for fp in failed_plots])
@@ -421,6 +427,8 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           plots[i].grid(False)
           plots[i].tick_params(axis='y', which='both',left=False,labelleft=False)
           plots[i].set_facecolor('white')
+          for s in plots[i].spines.values():
+            s.set_visible(False)
         xlim_side = max(xlim_dists) / 2
         for i in range(num_coalitions) :
           xlim = plots[i].get_xlim()
@@ -591,6 +599,11 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             subplots[hindex].yaxis.set_label_position("right")
             subplots[hindex].spines["right"].set_position(("axes", 1.08))
             
+            for s in subplots[hindex].spines.values():
+              s.set_visible(False)
+            for s in subplot.spines.values():
+              s.set_visible(False)
+
             if hindex == dimensions[0] - 1:
                 subplot.set_ylabel("Seats")
                 subplots[hindex].set_ylabel("% Support")
