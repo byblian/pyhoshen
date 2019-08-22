@@ -234,6 +234,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         num_passed_parties = len(np.where(max_bo > 0)[0])
         passed_parties = max_bo.argsort()[::-1]
         fig, plots = plt.subplots(2, num_passed_parties, figsize=(2 * num_passed_parties, 10), gridspec_kw={'height_ratios':[5,1]} )
+        fig.set_facecolor('white')
         xlim_dists = []
         ylim_height = []
         max_bo_height = max_bo.max()
@@ -366,6 +367,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         coalitions_bo = coalitions_matrix.dot(bo_plot)
     
         fig, plots = plt.subplots(1, num_coalitions, figsize=(5 * num_coalitions, 5))
+        fig.set_facecolor('white')
         xlim_dists = []
         ylim_height = []
         
@@ -477,6 +479,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
               for pi, pollster in enumerate(pollster_ids)]
     
           fig, ax = plt.subplots(figsize=(10, 2))
+          fig.set_facecolor('white')
           legend = fig.legend(handles=patches, loc='best', ncol=2)
           if hebrew:
             for col in legend._legend_box._children[-1]._children:
@@ -529,6 +532,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         dimensions = get_dimensions(fe.num_parties)
         fig, plots = plt.subplots(dimensions[1], dimensions[0], 
                                   figsize=(5.5 * dimensions[0], 3.5 * dimensions[1]))
+        fig.set_facecolor('white')
         means = samples.mean(axis=0)
         stds = samples.std(axis=0)
     
@@ -661,6 +665,8 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         labels = [bidialg.get_display(v['hname'])  if hebrew else v['name'] 
             for v in self.forecast_model.parties.values()]
         fig = utils.plot_correlation_matrices(correlation_matrices, labels, alignRight=hebrew)
+        fig.set_facecolor('white')
         fig.text(.5, 1.05, bidialg.get_display('מטריצת המתאמים') if hebrew else 'Correlation Matrix', 
                  ha='center', fontsize='xx-large')
         fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
+
