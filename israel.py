@@ -364,7 +364,14 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
               coalitions_matrix[i][party_index] = 1
     
         bo_plot = bader_ofer.transpose(1,2,0)[day]
-        coalitions_bo = coalitions_matrix.dot(bo_plot)
+        coalitions_mandates = coalitions_matrix[:,:,None] * bo_plot[None,:,:].astype('int64')
+        for i, (coalition, config) in enumerate(coalitions.items()):
+          if 'subsets' in config:
+             for party, subset_config in config['subsets'].items():
+                party_index = fe.party_ids.index(party)
+                cum_members = np.asarray([sum(j <= i for j in subset_config['members']) for i in range(1 + max(subset_config['members']))])
+                coalitions_mandates[i][party_index] = cum_members[coalitions_mandates[i][party_index]]
+        coalitions_bo = coalitions_mandates.sum(axis=1)
     
         fig, plots = plt.subplots(1, num_coalitions, figsize=(5 * num_coalitions, 5))
         fig.set_facecolor('white')
@@ -382,15 +389,24 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           '#56ad00', # 64
           '#1e9600', # 65 = green
         ]
-
+        
+        coalition_names = sorted([ bidialg.get_display(config['hname']) if hebrew else config['name'] for config in coalitions.values() ], key=lambda p: p[::-1] if hebrew else p, reverse=hebrew)
         for i, (coalition, config) in enumerate(coalitions.items()) :
           name = bidialg.get_display(config['hname']) if hebrew else config['name']
-          title = plots[i].set_title(name, va='bottom', y=-0.2, fontsize='large')
-          party_names = [ bidialg.get_display(fe.parties[party]['hname']) if hebrew else fe.parties[party]['name'] for party in config['parties'] ]
-          plots[i].text(0.5, -0.2, '\n'.join(sorted(party_names, key=lambda p: p[::-1] if hebrew else p)),
-               ha='center', va='top', fontsize='small', transform=plots[i].transAxes)
+          plot = plots[coalition_names.index(name)]
+          title = plot.set_title(name, va='bottom', y=-0.2, fontsize='large')
+          def get_party_name(party):
+            namevar = 'hname' if hebrew else 'name'
+            name = fe.parties[party][namevar]
+            if 'subsets' in config and party in config['subsets']:
+                name += ' (%s)' % config['subsets'][party][namevar]
+            return bidialg.get_display(name) if hebrew else name
+
+          party_names = [ get_party_name(party) for party in config['parties'] ]
+          plot.text(0.5, -0.2, '\n'.join(sorted(party_names, key=lambda p: p[::-1] if hebrew else p)),
+               ha='center', va='top', fontsize='small', transform=plot.transAxes)
           mandates_count = np.unique(coalitions_bo[i], return_counts=True)
-          bars = plots[i].bar(mandates_count[0], 100 * mandates_count[1] / len(coalitions_bo[i]))
+          bars = plot.bar(mandates_count[0], 100 * mandates_count[1] / len(coalitions_bo[i]))
           for mandates, bar in zip(mandates_count[0], bars):
             cindex = int(min(8, max(0, mandates - 57)))
             bar.set_color(colors[cindex])
@@ -410,33 +426,33 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
               xticks += [mandates_count[0][mean_index]]
           num_minimum = len(np.where(coalitions_bo[i] >= min_mandates_for_coalition)[0])
           num_stable =len(np.where(coalitions_bo[i] >= stable_mandates_for_coalition)[0])
-          perc_text = plots[i].text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + mean_rect.get_height()/3.0, '%.1f%%' % (100 * num_minimum / coalitions_bo[i].shape[0]), ha='center', va='top', fontsize='xx-large', fontweight='bold')
+          perc_text = plot.text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + mean_rect.get_height()/3.0, '%.1f%%' % (100 * num_minimum / coalitions_bo[i].shape[0]), ha='center', va='top', fontsize='xx-large', fontweight='bold')
           perc_text.set_path_effects([pe.withStroke(linewidth=4, foreground='w', alpha=0.7)])
-          perc_title = plots[i].text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + mean_rect.get_height()/3.0,
+          perc_title = plot.text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + mean_rect.get_height()/3.0,
               bidialg.get_display('%d ומעלה:' % min_mandates_for_coalition) if hebrew else '%d and Above:' % min_mandates_for_coalition,
               ha='center', va='bottom', fontsize='medium', fontweight='bold')
           perc_title.set_path_effects([pe.withStroke(linewidth=4, foreground='w', alpha=0.7)])
-          perc_text = plots[i].text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + 2*mean_rect.get_height()/3.0, '%.1f%%' % (100 * num_stable / coalitions_bo[i].shape[0]), ha='center', va='top', fontsize='xx-large', fontweight='bold')
+          perc_text = plot.text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + 2*mean_rect.get_height()/3.0, '%.1f%%' % (100 * num_stable / coalitions_bo[i].shape[0]), ha='center', va='top', fontsize='xx-large', fontweight='bold')
           perc_text.set_path_effects([pe.withStroke(linewidth=4, foreground='w', alpha=0.7)])
-          perc_title = plots[i].text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + 2*mean_rect.get_height()/3.0,
+          perc_title = plot.text(mean_rect.get_x() + mean_rect.get_width()/2.0, mean_rect.get_y() + 2*mean_rect.get_height()/3.0,
               bidialg.get_display('%d ומעלה:' % stable_mandates_for_coalition) if hebrew else '%d and Above:' % stable_mandates_for_coalition,
               ha='center', va='bottom', fontsize='medium', fontweight='bold')
           perc_title.set_path_effects([pe.withStroke(linewidth=4, foreground='w', alpha=0.7)])
-          plots[i].set_xticks(xticks)
-          xlim = plots[i].get_xlim()
+          plot.set_xticks(xticks)
+          xlim = plot.get_xlim()
           xlim_dists += [ xlim[1] - xlim[0] + 1 ]
-          ylim_height += [ plots[i].get_ylim()[1] ]
-          plots[i].grid(False)
-          plots[i].tick_params(axis='y', which='both',left=False,labelleft=False)
-          plots[i].set_facecolor('white')
-          for s in plots[i].spines.values():
+          ylim_height += [ plot.get_ylim()[1] ]
+          plot.grid(False)
+          plot.tick_params(axis='y', which='both',left=False,labelleft=False)
+          plot.set_facecolor('white')
+          for s in plot.spines.values():
             s.set_visible(False)
         xlim_side = max(xlim_dists) / 2
         for i in range(num_coalitions) :
-          xlim = plots[i].get_xlim()
+          xlim = plot.get_xlim()
           xlim_center = (xlim[0] + xlim[1]) / 2
-          plots[i].set_xlim(xlim_center - xlim_side, xlim_center + xlim_side)
-          plots[i].set_ylim(top=max(ylim_height))
+          plot.set_xlim(xlim_center - xlim_side, xlim_center + xlim_side)
+          plot.set_ylim(top=max(ylim_height))
     
         if hebrew:
             title = bidialg.get_display('קואליציות')
@@ -493,9 +509,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           ax.xaxis.set_major_formatter(ticker.PercentFormatter(decimals=1))
           ax.yaxis.set_major_formatter(ticker.PercentFormatter(decimals=1))
           plots += [ax]
-        fig.text(.5, 1.05, bidialg.get_display('הטיית הסוקרים') if hebrew else 'House Effects', 
-                 ha='center', fontsize='xx-large')
-        fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
+          fig.text(.5, 1.05, bidialg.get_display('הטיית הסוקרים') if hebrew else 'House Effects', 
+                   ha='center', fontsize='xx-large')
+          fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
 
     def plot_party_support_evolution_graphs(self, samples, mbo = None, burn=None, hebrew = True):
         """
@@ -556,7 +572,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             subplots[hindex].set_title(title)
     
             subplot = subplots[hindex].twinx()
-    
+        
             num_day_ticks = fe.num_days
             date_ticks = [fe.forecast_day - datetime.timedelta(days=x) 
                 for x in range(0, num_day_ticks, 7)]
