@@ -344,7 +344,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
-    def plot_coalitions(self, bader_ofer, coalitions=None, day=0, min_mandates_for_coalition=61, stable_mandates_for_coalition=65, hebrew=True):
+    def plot_coalitions(self, bader_ofer, coalitions=None, day=0, min_mandates_for_coalition=61, stable_mandates_for_coalition=65, hebrew=True, coalitions_shape=None):
         """
         Plot the resulting mandates of the coalitions and their distributions.
         """
@@ -373,7 +373,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
                 coalitions_mandates[i][party_index] = cum_members[coalitions_mandates[i][party_index]]
         coalitions_bo = coalitions_mandates.sum(axis=1)
     
-        fig, plots = plt.subplots(1, num_coalitions, figsize=(5 * num_coalitions, 5))
+        if coalitions_shape is None:
+            coalitions_shape = (1, num_coalitions)
+        fig, plots = plt.subplots(coalitions_shape[0], coalitions_shape[1], figsize=(5 * coalitions_shape[1], 5 * coalitions_shape[0]))
         fig.set_facecolor('white')
         xlim_dists = []
         ylim_height = []
@@ -393,7 +395,11 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         coalition_names = sorted([ bidialg.get_display(config['hname']) if hebrew else config['name'] for config in coalitions.values() ], key=lambda p: p[::-1] if hebrew else p, reverse=hebrew)
         for i, (coalition, config) in enumerate(coalitions.items()) :
           name = bidialg.get_display(config['hname']) if hebrew else config['name']
-          plot = plots[coalition_names.index(name)]
+          coalition_index = coalition_names.index(name)
+          if coalitions_shape[0] > 1:
+          plot = plots[coalition_index // coalitions_shape[1], coalition_index % coalitions_shape[1]]
+          else:
+             plot = plots[coalition_index]
           title = plot.set_title(name, va='bottom', y=-0.2, fontsize='large')
           def get_party_name(party):
             namevar = 'hname' if hebrew else 'name'
