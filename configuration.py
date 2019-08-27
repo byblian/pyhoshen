@@ -78,9 +78,10 @@ class Configuration:
                     nrows = data['nrows'] if 'nrows' in data else None
                     index_col = data['index_col'] if 'index_col' in data else None
                     usecols = data['usecols'] if 'usecols' in data else None
+                    skip_rows = range(min(header)) if type(header) is list else range(header)
                     df = pd.read_excel(filename, header=header, nrows=nrows,
                                 index_col=index_col,
-                                skip_rows=range(min(header)))
+                                skip_rows=skip_rows)
                     if usecols is not None:
                         df = df[[df.columns[i] for i in usecols]]
                 else:
@@ -109,13 +110,26 @@ class Configuration:
                 else:
                     df = df.dropna(how=data['dropna'])
             if 'output' in data:
-                df = df.eval('\n'.join('%s = %s' % (k, v) for k,v in data['output'].items()))
+                for k, v in data['output'].items():
+                  if type(v) is not dict:
+                    if type(v) is list:
+                      v = { 'eval': v[0], 'dtype': v[1] }
+                    else:
+                      v = { 'eval': v, 'dtype': 'float64' }
+
+                  if k != v['eval']:
+                    df[k] = df.eval('%s = %s' % (k, v['eval']))[k].astype(v['dtype'])
+                  else:
+                    df[k] = df[k].astype(v['dtype'])
+                  if 'fillna' in v:
+                    df[k] = df[k].fillna(v['fillna'])
                 output = list(data['output'].keys())
             else:
                 output = df.columns
             df = df[output]
+#            print (dataset, df.index.name, data['index'])
             if df.index.name != data['index']:
-                df.set_index(data['index'])
+                df = df.set_index(data['index'])
             dataframes[dataset] = df
     
     def read_data(self, configs):
