@@ -397,9 +397,9 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           name = bidialg.get_display(config['hname']) if hebrew else config['name']
           coalition_index = coalition_names.index(name)
           if coalitions_shape[0] > 1:
-          plot = plots[coalition_index // coalitions_shape[1], coalition_index % coalitions_shape[1]]
+            plot = plots[coalition_index // coalitions_shape[1], coalition_index % coalitions_shape[1]]
           else:
-             plot = plots[coalition_index]
+            plot = plots[coalition_index]
           title = plot.set_title(name, va='bottom', y=-0.2, fontsize='large')
           def get_party_name(party):
             namevar = 'hname' if hebrew else 'name'
