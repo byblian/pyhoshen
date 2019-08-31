@@ -76,17 +76,18 @@ class Configuration:
                 elif extension == '.xls' or extension == '.xlsx':
                     header = data['header'] if 'header' in data else 0
                     nrows = data['nrows'] if 'nrows' in data else None
+                    sheet_name = data['sheet_name'] if 'sheet_name' in data else 0
                     index_col = data['index_col'] if 'index_col' in data else None
                     usecols = data['usecols'] if 'usecols' in data else None
                     skip_rows = range(min(header)) if type(header) is list else range(header)
                     df = pd.read_excel(filename, header=header, nrows=nrows,
-                                index_col=index_col,
+                                index_col=index_col, sheet_name=sheet_name,
                                 skip_rows=skip_rows)
                     if usecols is not None:
                         df = df[[df.columns[i] for i in usecols]]
                 else:
                     raise Exception('unknown extension: %s' % extension)
-        
+                    
             df.columns = df.columns.to_series().apply(lambda x: 
                 ' '.join(str(c) for c in x if 'Unnamed' not in str(c)) if type(x) is tuple else x)
             
@@ -103,6 +104,9 @@ class Configuration:
             else:
                 df.index.name = data['index']
                 df[data['index']] = df.index
+                
+            if 'filter' in data:
+                df = df.loc[df.eval(data['filter'])]
     
             if 'dropna' in data:
                 if 'dropna_subset' in data:
@@ -111,19 +115,31 @@ class Configuration:
                     df = df.dropna(how=data['dropna'])
             if 'output' in data:
                 for k, v in data['output'].items():
-                  if type(v) is not dict:
-                    if type(v) is list:
-                      v = { 'eval': v[0], 'dtype': v[1] }
-                    else:
-                      v = { 'eval': v, 'dtype': 'float64' }
+                  try:
+                    if type(v) is not dict:
+                      if type(v) is list:
+                        v = { 'eval': v[0], 'dtype': v[1] }
+                      else:
+                        v = { 'eval': v, 'dtype': 'float64' }
 
-                  if k != v['eval']:
-                    df[k] = df.eval('%s = %s' % (k, v['eval']))[k].astype(v['dtype'])
-                  else:
-                    df[k] = df[k].astype(v['dtype'])
-                  if 'fillna' in v:
-                    df[k] = df[k].fillna(v['fillna'])
-                output = list(data['output'].keys())
+                    if 'coerce' in v and v['coerce']:
+                      df[k] = pd.to_numeric(df[k], 'coerce')
+
+                    if 'dtype' in v and k in df.columns:
+                      df[k] = df[k].astype(v['dtype'])
+
+                    if 'eval' in v and k != v['eval']:
+                      df[k] = df.eval('%s = %s' % (k, v['eval']))[k]
+                      if 'dtype' in v:
+                        df[k] = df[k].astype(v['dtype'])
+
+                    if 'fillna' in v:
+                      df[k] = df[k].fillna(v['fillna'])
+                  except Exception as e:
+                    import sys
+                    raise type(e)(str(e) + ' while handling column %s' % k).with_traceback(sys.exc_info()[2])
+
+                output = list(k for k, v in data['output'].items() if 'drop' not in v or not v['drop'])
             else:
                 output = df.columns
             df = df[output]
@@ -273,4 +289,3 @@ class Configuration:
                     raise Exception("unknown method %s" % poll_config['method'])
             else:
                 self.dataframes['polls'][category] = df.eval('\n'.join(['{0}={0}/120'.format(p) for p in parties]))
-            
