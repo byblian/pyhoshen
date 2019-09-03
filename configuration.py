@@ -109,11 +109,14 @@ class Configuration:
             if 'index' in data:
                 if 'groupby' in data:
                     df = df.groupby(data['index']).sum().reset_index()
-                if 'groupby' in data or data['index'] in df.columns:
+                if type(data['index']) is list and all(i in df.columns for i in data['index']) or data['index'] in df.columns:
                     df = df.set_index(data['index'])
                 else:
                     df.index.name = data['index']
                     df[data['index']] = df.index
+    
+            if 'filter' in data:
+                df = df.loc[df.eval(data['filter'])]
     
             if 'dropna' in data:
                 if 'dropna_subset' in data:
@@ -149,10 +152,11 @@ class Configuration:
                 output = list(k for k, v in data['output'].items() if 'drop' not in v or not v['drop'])
             else:
                 output = df.columns
-            df = df[output]
+            df = df[[f for f in output if f != df.index.name]]
 #            print (dataset, df.index.name, data['index'])
             if 'index' in data and df.index.name != data['index']:
-                df = df.set_index(data['index'])
+                if type(data['index']) is not list and data['index'] in df.columns:
+                    df = df.set_index(data['index'])
             dataframes[dataset] = df
     
     def read_data(self, configs):
