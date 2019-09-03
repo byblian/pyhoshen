@@ -66,12 +66,13 @@ class Configuration:
                 extension = os.path.splitext(filename)[1]
                 if extension == '.csv':
                     parse_dates = data['parse_dates'] if 'parse_dates' in data else False
+                    index_col = data['index_col'] if 'index_col' in data else None
                     if 'date_format' in data:
                         date_parser = lambda x: datetime.datetime.strptime(x, data['date_format']).date()
                     else:
                         date_parser = None
                     encoding = data['encoding'] if 'encoding' in data else None
-                    df = pd.read_csv(filename, encoding=encoding,
+                    df = pd.read_csv(filename, encoding=encoding, index_col=index_col,
                                      parse_dates=parse_dates, date_parser=date_parser)
                 elif extension == '.xls' or extension == '.xlsx':
                     header = data['header'] if 'header' in data else 0
@@ -186,6 +187,12 @@ class Configuration:
                     { category:  poll_config })
                 
             df = self.dataframes['polls'][category]
+            
+            if 'zero_fill_parties' in poll_config:
+              for zfp in poll_config['zero_fill_parties']:
+                if zfp not in df.columns:
+                  df[zfp] = 0
+
             parties = [ p for p in df.columns if p.startswith('p_') ]
             if 'method' in poll_config:
                 if poll_config['method'] == 'deduce':

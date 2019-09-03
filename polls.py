@@ -46,7 +46,7 @@ class ElectionPolls:
         for index, poll in polls_dataset.iterrows():
             percentages = poll[self.party_ids]
             pollster = poll['pollster'] if 'pollster' in poll else poll['poller']
-            poll_id = poll['id']
+            poll_id = index
             num_polled = poll['num_polled']
             num_poll_days = poll['num_days'] + extra_avg_days
             start_day = day_index(poll['start_date'])
@@ -73,3 +73,4 @@ class ElectionPolls:
     
     def __len__(self):
         return len(self.polls)
+
