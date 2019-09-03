@@ -88,6 +88,12 @@ class Configuration:
                 else:
                     raise Exception('unknown extension: %s' % extension)
                     
+            if 'transpose' in data and data['transpose']:
+              df = df.T
+              if 'transpose_headers' in data:
+                df.columns = [' '.join(levels) for levels in pd.MultiIndex.from_frame(df.iloc[data['transpose_headers']]).levels]
+                df = df.drop(df.index[data['transpose_headers']])
+        
             df.columns = df.columns.to_series().apply(lambda x: 
                 ' '.join(str(c) for c in x if 'Unnamed' not in str(c)) if type(x) is tuple else x)
             
@@ -96,17 +102,18 @@ class Configuration:
                 df = df[list(data['columns'].values())]
         
                 df.columns = data['columns'].keys()
+          
+            if 'select_rows' in data:
+                df = df.loc[data['select_rows']]
     
-            if 'groupby' in data:
-                df = df.groupby(data['index']).sum().reset_index()
-            if 'groupby' in data or data['index'] in df.columns:
-                df.set_index(data['index'])
-            else:
-                df.index.name = data['index']
-                df[data['index']] = df.index
-                
-            if 'filter' in data:
-                df = df.loc[df.eval(data['filter'])]
+            if 'index' in data:
+                if 'groupby' in data:
+                    df = df.groupby(data['index']).sum().reset_index()
+                if 'groupby' in data or data['index'] in df.columns:
+                    df = df.set_index(data['index'])
+                else:
+                    df.index.name = data['index']
+                    df[data['index']] = df.index
     
             if 'dropna' in data:
                 if 'dropna_subset' in data:
@@ -144,7 +151,7 @@ class Configuration:
                 output = df.columns
             df = df[output]
 #            print (dataset, df.index.name, data['index'])
-            if df.index.name != data['index']:
+            if 'index' in data and df.index.name != data['index']:
                 df = df.set_index(data['index'])
             dataframes[dataset] = df
     
