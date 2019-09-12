@@ -424,7 +424,7 @@ class ElectionForecastModel(pm.Model):
         
         test_results = [ np.nan_to_num(f) for f in election_polls.get_last_days_average(10)]
 
-        return ElectionCycleModel(self, cycle, cycle_config, self.parties[cycle],
+        return ElectionCycleModel(self, cycle, cycle_config, parties,
             election_polls=election_polls, eta=eta,
             test_results=test_results, real_results=real_results,
             house_effects_model=house_effects_model,
