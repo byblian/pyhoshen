@@ -112,9 +112,10 @@ class ElectionDynamicsModel(pm.Model):
             if self.adjacent_day_fn is None:
                 return [ expected_poll_outcome(p) for p in polls ] + self.votes
             else:
+                first_poll_day = min(p.end_day for p in polls)
                 weights = np.asarray([[ 
                     sum(self.adjacent_day_fn(abs(d - poll_day)) 
-                        for poll_day in range(p.end_day, p.start_day + 1)) 
+                        for poll_day in range(p.end_day, p.start_day + 1)) if d >= first_poll_day else 0
                     for d in range(self.num_days) ]
                     for p in polls])
                 return tt.dot(weights / weights.sum(axis=1, keepdims=True), self.walk + self.votes)
@@ -287,7 +288,7 @@ class ElectionCycleModel(pm.Model):
     def __init__(self, election_model, name, cycle_config, parties, election_polls,
                  eta, adjacent_day_fn, min_polls_per_pollster,
                  test_results=None, real_results=None,
-                 house_effects_model=None):
+                 house_effects_model=None, chol=None, votes=None):
         super(ElectionCycleModel, self).__init__(name)
 
         self.config = cycle_config
@@ -304,16 +305,22 @@ class ElectionCycleModel(pm.Model):
         self.eta = eta
         
         # Create the cholesky matrix of the model
-        self.cholesky_pmatrix = pm.LKJCholeskyCov('cholesky_pmatrix',
-            n=self.num_parties, eta=self.eta,   
-            sd_dist=pm.HalfCauchy.dist(0.1, shape=[self.num_parties]))
-        self.cholesky_matrix = pm.Deterministic('cholesky_matrix',
-            pm.expand_packed_triangular(self.num_parties, self.cholesky_pmatrix))
+        if chol is None:
+          self.cholesky_pmatrix = pm.LKJCholeskyCov('cholesky_pmatrix',
+              n=self.num_parties, eta=self.eta,   
+              sd_dist=pm.HalfCauchy.dist(0.1, shape=[self.num_parties]))
+          self.cholesky_matrix = pm.Deterministic('cholesky_matrix',
+              pm.expand_packed_triangular(self.num_parties, self.cholesky_pmatrix))
+        else:
+          self.cholesky_matrix = chol
         
         # Model the prior on the election-day votes
         # This could be replaced by the results of a
         # fundamentals model
-        self.votes = pm.Flat('votes', shape=self.num_parties)
+        if votes is None:
+          self.votes = pm.Flat('votes', shape=self.num_parties)
+        else:
+          self.votes = votes
 
         # Prepare the party grouping indexes. This is
         # currently unused.
@@ -347,7 +354,8 @@ class ElectionForecastModel(pm.Model):
                  house_effects_model='add-mean', 
                  extra_avg_days=0, max_poll_days=None, 
                  polls_since=None, min_poll_days=None,
-                 adjacent_day_fn=-2.,
+                 adjacent_day_fn=-2., join_composites=False,
+                 chol=None, votes=None,
                  *args, **kwargs):
 
         super(ElectionForecastModel, self).__init__(*args, **kwargs)
@@ -370,16 +378,17 @@ class ElectionForecastModel(pm.Model):
             forecast_day=forecast_day, real_results=None,
             extra_avg_days=extra_avg_days, max_poll_days=max_poll_days,
             polls_since=polls_since, min_poll_days=min_poll_days,
-            adjacent_day_fn=adjacent_day_fn,
             eta=eta, house_effects_model=house_effects_model,
-            min_polls_per_pollster=min_polls_per_pollster)
+            min_polls_per_pollster=min_polls_per_pollster,
+            adjacent_day_fn=adjacent_day_fn, join_composites=join_composites,
+            chol=chol, votes=votes)
                
         self.support = pm.Deterministic('support', self.forecast_model.support)
 
     def init_cycle(self, cycle, forecast_day, real_results, 
                    eta, min_polls_per_pollster, house_effects_model,
                    extra_avg_days, max_poll_days, polls_since, min_poll_days,
-                   adjacent_day_fn):
+                   adjacent_day_fn, join_composites, chol, votes):
         cycle_config = self.config['cycles'][cycle]
 
         parties = cycle_config['parties']
@@ -401,22 +410,23 @@ class ElectionForecastModel(pm.Model):
         for i, poll_config in enumerate(cycle_config['polls']):
             self.config.read_polls(cycle_config, {'%s-%d' % (cycle, i): poll_config})
         
-        # Use the election day if the forecast day was not provided
-        if forecast_day is None:
-            forecast_day = datetime.datetime.strptime(cycle_config['election_day'], '%d/%m/%Y').date()
+        # Use the election day if the forecast day was not provided or is later than election day
+		# (to allow reasonable use of forecast today + 5 days)
+		election_day = datetime.datetime.strptime(cycle_config['election_day'], '%d/%m/%Y').date()
+        forecast_day = election_day if forecast_day is None else min(forecast_day, election_day)
 
         # Multiple poll datasets are not yet supported at this
         # interface so use the first dataset ('-0')
         election_polls = polls.ElectionPolls(
             self.config.dataframes['polls']['%s-0' % cycle],
-            parties.keys(), forecast_day, extra_avg_days,
+            self.parties[cycle].keys(), forecast_day, extra_avg_days,
             max_poll_days, polls_since, min_poll_days)
         
         test_results = [ np.nan_to_num(f) for f in election_polls.get_last_days_average(10)]
 
-        return ElectionCycleModel(self, cycle, cycle_config, parties,
+        return ElectionCycleModel(self, cycle, cycle_config, self.parties[cycle],
             election_polls=election_polls, eta=eta,
-            adjacent_day_fn=adjacent_day_fn,
             test_results=test_results, real_results=real_results,
             house_effects_model=house_effects_model,
-            min_polls_per_pollster=min_polls_per_pollster)
+            min_polls_per_pollster=min_polls_per_pollster,
+            adjacent_day_fn=adjacent_day_fn, chol=chol, votes=votes)
