@@ -419,7 +419,7 @@ class ElectionForecastModel(pm.Model):
         # interface so use the first dataset ('-0')
         election_polls = polls.ElectionPolls(
             self.config.dataframes['polls']['%s-0' % cycle],
-            self.parties[cycle].keys(), forecast_day, extra_avg_days,
+            parties.keys(), forecast_day, extra_avg_days,
             max_poll_days, polls_since, min_poll_days)
         
         test_results = [ np.nan_to_num(f) for f in election_polls.get_last_days_average(10)]
