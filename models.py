@@ -411,8 +411,8 @@ class ElectionForecastModel(pm.Model):
             self.config.read_polls(cycle_config, {'%s-%d' % (cycle, i): poll_config})
         
         # Use the election day if the forecast day was not provided or is later than election day
-		# (to allow reasonable use of forecast today + 5 days)
-		election_day = datetime.datetime.strptime(cycle_config['election_day'], '%d/%m/%Y').date()
+        # (to allow reasonable use of forecast today + 5 days)
+        election_day = datetime.datetime.strptime(cycle_config['election_day'], '%d/%m/%Y').date()
         forecast_day = election_day if forecast_day is None else min(forecast_day, election_day)
 
         # Multiple poll datasets are not yet supported at this
