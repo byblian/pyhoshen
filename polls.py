@@ -29,6 +29,7 @@ class ElectionPolls:
         self.forecast_day = forecast_day
         self.party_ids = [p for p in party_ids]
         self.num_parties = len(self.party_ids)
+        
         self.num_days = day_index(min(polls_dataset['start_date'])) + 1
         if max_poll_days is not None:
             assert polls_since==None, "only one of polls_since or max_poll_days should be provided"
@@ -36,6 +37,9 @@ class ElectionPolls:
         elif polls_since is not None:
             polls_since_days = max(day_index(polls_since) + 1, min_poll_days)
             self.num_days = min(self.num_days, polls_since_days)
+        else if self.num_days > 90:
+            print ("poll days truncated to 90, originally ", self.num_days, " forecast day:", forecast_day)
+            self.num_days = min(self.num_days, 90)
         self.max_poll_days = 0
 
         self.pollster_ids = []
