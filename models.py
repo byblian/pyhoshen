@@ -18,21 +18,24 @@ class ElectionDynamicsModel(pm.Model):
     campaign based on the polls, optionally assuming "house
     effects."
     """
-    def __init__(self, name, votes, polls, party_groups, cholesky_matrix,
+    def __init__(self, name, votes, polls, cholesky_matrix,
+                 after_polls_cholesky_matrix, election_day_cholesky_matrix,
                  test_results, house_effects_model, min_polls_per_pollster,
                  adjacent_day_fn):
         super(ElectionDynamicsModel, self).__init__(name)
         
         self.votes = votes
         self.polls = polls
-        self.party_groups = party_groups
         
         self.num_parties = polls.num_parties
         self.num_days = polls.num_days
         self.num_pollsters = polls.num_pollsters
         self.max_poll_days = polls.max_poll_days
-        self.num_party_groups = max(self.party_groups) + 1
+
         self.cholesky_matrix = cholesky_matrix
+        self.after_polls_cholesky_matrix = after_polls_cholesky_matrix
+        self.election_day_cholesky_matrix = election_day_cholesky_matrix
+
         if type(adjacent_day_fn) in [int, float]:
             self.adjacent_day_fn = lambda diff: (1. + diff) ** adjacent_day_fn
         else:
@@ -40,29 +43,6 @@ class ElectionDynamicsModel(pm.Model):
         
         self.test_results = (polls.get_last_days_average(10)
             if test_results is None else test_results)
-        
-        # The base polls model. House-effects models
-        # are optionally set up based on this model.
-
-        # The innovations are multivariate normal with the same
-        # covariance/cholesky matrix as the polls' MvStudentT
-        # variable. The assumption is that the parties' covariance
-        # is invariant throughout the election campaign and
-        # influences polls, evolving support and election day
-        # vote.
-        self.innovations = pm.MvNormal('innovations',
-            mu=np.zeros([self.num_days, self.num_parties]),
-            chol=self.cholesky_matrix,
-            shape=[self.num_days, self.num_parties],
-            testval=np.zeros([self.num_days, self.num_parties]))
-            
-        # The random walk itself is a cumulative sum of the innovations.
-        self.walk = pm.Deterministic('walk', self.innovations.cumsum(axis=0))
-
-        # The modeled support of the various parties over time is the sum
-        # of both the election-day votes and the innovations that led up to it.
-        # The support at day 0 is the election day vote.
-        self.support = pm.Deterministic('support', self.votes + self.walk)
         
         # In some cases, we might want to filter pollsters without a minimum
         # number of polls. Because these pollsters produced only a few polls,
@@ -86,9 +66,49 @@ class ElectionDynamicsModel(pm.Model):
         self.filtered_polls = [ p for p in self.polls 
                                if polls_per_pollster[p.pollster_id] >= self.min_polls_per_pollster ]
         
-        if self.min_polls_per_pollster > 1:
+        if len(self.polls) - len(self.filtered_polls) > 0:
           print ("Some polls were filtered out. Provided polls: %d, filtered: %d, final total: %d" % 
              (len(self.polls), len(self.polls) - len(self.filtered_polls), len(self.filtered_polls)))
+        
+        self.first_poll_day =  min(p.end_day for p in self.filtered_polls)
+        
+        # The base polls model. House-effects models
+        # are optionally set up based on this model.
+
+        # The innovations are multivariate normal with the same
+        # covariance/cholesky matrix as the polls' MvStudentT
+        # variable. The assumption is that the parties' covariance
+        # is invariant throughout the election campaign and
+        # influences polls, evolving support and election day
+        # vote.
+        self.innovations = [ pm.MvNormal('election_day_innovations',
+            mu=np.zeros([1, self.num_parties]),
+            chol=self.election_day_cholesky_matrix,
+            shape=[1, self.num_parties],
+            testval=np.zeros([1, self.num_parties])) ]
+
+        if self.first_poll_day > 1:
+            self.innovations += [ pm.MvNormal('after_poll_innovations',
+                mu=np.zeros([self.first_poll_day - 1, self.num_parties]),
+                chol=self.after_polls_cholesky_matrix,
+                shape=[self.first_poll_day - 1, self.num_parties],
+                testval=np.zeros([self.first_poll_day - 1, self.num_parties])) ]
+
+        self.innovations += [ pm.MvNormal('poll_innovations',
+            mu=np.zeros([self.num_days - max(self.first_poll_day, 1), self.num_parties]),
+            chol=self.cholesky_matrix,
+            shape=[self.num_days - max(self.first_poll_day, 1), self.num_parties],
+            testval=np.zeros([self.num_days - max(self.first_poll_day, 1), self.num_parties])) ]
+
+
+
+        # The random walk itself is a cumulative sum of the innovations.
+        self.walk = pm.Deterministic('walk', tt.concatenate(self.innovations, axis=0).cumsum(axis=0))
+
+        # The modeled support of the various parties over time is the sum
+        # of both the election-day votes and the innovations that led up to it.
+        # The support at day 0 is the election day vote.
+        self.support = pm.Deterministic('support', self.votes + self.walk)
         
         # Group polls by number of days. This is necessary to allow generating
         # a different cholesky matrix for each. This corresponds to the 
@@ -112,10 +132,9 @@ class ElectionDynamicsModel(pm.Model):
             if self.adjacent_day_fn is None:
                 return [ expected_poll_outcome(p) for p in polls ] + self.votes
             else:
-                first_poll_day = min(p.end_day for p in polls)
                 weights = np.asarray([[ 
                     sum(self.adjacent_day_fn(abs(d - poll_day)) 
-                        for poll_day in range(p.end_day, p.start_day + 1)) if d >= first_poll_day else 0
+                        for poll_day in range(p.end_day, p.start_day + 1)) if d >= self.first_poll_day else 0
                     for d in range(self.num_days) ]
                     for p in polls])
                 return tt.dot(weights / weights.sum(axis=1, keepdims=True), self.walk + self.votes)
@@ -288,7 +307,8 @@ class ElectionCycleModel(pm.Model):
     def __init__(self, election_model, name, cycle_config, parties, election_polls,
                  eta, adjacent_day_fn, min_polls_per_pollster,
                  test_results=None, real_results=None,
-                 house_effects_model=None, chol=None, votes=None):
+                 house_effects_model=None, chol=None, votes=None,
+                 after_polls_chol=None, election_day_chol=None):
         super(ElectionCycleModel, self).__init__(name)
 
         self.config = cycle_config
@@ -313,6 +333,9 @@ class ElectionCycleModel(pm.Model):
               pm.expand_packed_triangular(self.num_parties, self.cholesky_pmatrix))
         else:
           self.cholesky_matrix = chol
+
+        self.after_polls_cholesky_matrix=after_polls_chol if after_polls_chol is not None else self.cholesky_matrix
+        self.election_day_cholesky_matrix=election_day_chol if election_day_chol is not None else self.cholesky_matrix 
         
         # Model the prior on the election-day votes
         # This could be replaced by the results of a
@@ -324,19 +347,13 @@ class ElectionCycleModel(pm.Model):
 
         # Prepare the party grouping indexes. This is
         # currently unused.
-        self.groups = []
-        self.party_groups = []
-        for p in self.party_ids:
-            group = self.parties[p]['group']
-            if group not in self.groups:
-                self.groups += [ group ]
-            self.party_groups += [ self.groups.index(group) ]
 
         # Create the Dynamics model.
         self.dynamics = ElectionDynamicsModel(
             name=name + '_polls', votes=self.votes, 
-            polls=election_polls, party_groups=self.party_groups,
-            cholesky_matrix=self.cholesky_matrix,
+            polls=election_polls, cholesky_matrix=self.cholesky_matrix,
+            after_polls_cholesky_matrix=self.after_polls_cholesky_matrix,
+            election_day_cholesky_matrix=self.election_day_cholesky_matrix,
             test_results=test_results, house_effects_model=house_effects_model,
             min_polls_per_pollster=min_polls_per_pollster,
             adjacent_day_fn=adjacent_day_fn)
@@ -355,8 +372,8 @@ class ElectionForecastModel(pm.Model):
                  extra_avg_days=0, max_poll_days=None, 
                  polls_since=None, min_poll_days=None,
                  adjacent_day_fn=-2., join_composites=False,
-                 chol=None, votes=None,
-                 *args, **kwargs):
+                 votes=None, chol=None, after_polls_chol=None,
+                 election_day_chol=None, *args, **kwargs):
 
         super(ElectionForecastModel, self).__init__(*args, **kwargs)
         
@@ -381,14 +398,16 @@ class ElectionForecastModel(pm.Model):
             eta=eta, house_effects_model=house_effects_model,
             min_polls_per_pollster=min_polls_per_pollster,
             adjacent_day_fn=adjacent_day_fn, join_composites=join_composites,
-            chol=chol, votes=votes)
+            votes=votes, chol=chol, after_polls_chol=after_polls_chol,
+            election_day_chol=election_day_chol)
                
         self.support = pm.Deterministic('support', self.forecast_model.support)
 
     def init_cycle(self, cycle, forecast_day, real_results, 
                    eta, min_polls_per_pollster, house_effects_model,
                    extra_avg_days, max_poll_days, polls_since, min_poll_days,
-                   adjacent_day_fn, join_composites, chol, votes):
+                   adjacent_day_fn, join_composites,
+                   votes, chol, after_polls_chol, election_day_chol):
         cycle_config = self.config['cycles'][cycle]
 
         parties = cycle_config['parties']
@@ -429,4 +448,6 @@ class ElectionForecastModel(pm.Model):
             test_results=test_results, real_results=real_results,
             house_effects_model=house_effects_model,
             min_polls_per_pollster=min_polls_per_pollster,
-            adjacent_day_fn=adjacent_day_fn, chol=chol, votes=votes)
+            adjacent_day_fn=adjacent_day_fn, votes=votes,
+            chol=chol, after_polls_chol=after_polls_chol,
+            election_day_chol=election_day_chol)
