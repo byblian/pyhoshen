@@ -37,7 +37,7 @@ class ElectionPolls:
         elif polls_since is not None:
             polls_since_days = max(day_index(polls_since) + 1, min_poll_days)
             self.num_days = min(self.num_days, polls_since_days)
-        else if self.num_days > 90:
+        elif self.num_days > 90:
             print ("poll days truncated to 90, originally ", self.num_days, " forecast day:", forecast_day)
             self.num_days = min(self.num_days, 90)
         self.max_poll_days = 0
