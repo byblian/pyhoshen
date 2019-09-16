@@ -218,7 +218,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         
         return tuple(convert_interval(i) for i in self.compute_interval(mandates, alpha))
       
-    def plot_mandates(self, bader_ofer, max_bo=None, day=0, hebrew=True):
+    def plot_mandates(self, bader_ofer, max_bo=None, day=0, hebrew=True, subtitle=''):
         """
         Plot the resulting mandates of the parties and their distributions.
         This is the bar graph most often seen in poll results.
@@ -337,17 +337,18 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
                 fp.set_xlim(right=max_failed_xlim)
                 fp.set_ylim(0, 150)
                 
+        title = 'חלוקת המנדטים' if hebrew else 'Mandates Allocation'
+        if subtitle != '':
+            title += ' - ' + subtitle
         if hebrew:
-            title = bidialg.get_display('חלוקת המנדטים')
-        else:
-            title = 'Mandates Allocation'
+            title = bidialg.get_display(title)
             
         fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
         if fe.house_effects_model is not None:
             fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
         fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
 
-    def plot_coalitions(self, bader_ofer, coalitions=None, day=0, min_mandates_for_coalition=61, stable_mandates_for_coalition=65, hebrew=True, coalitions_shape=None):
+    def plot_coalitions(self, bader_ofer, coalitions=None, day=0, min_mandates_for_coalition=61, stable_mandates_for_coalition=65, hebrew=True, coalitions_shape=None, subtitle=''):
         """
         Plot the resulting mandates of the coalitions and their distributions.
         """
@@ -463,10 +464,11 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           plot.set_xlim(xlim_center - xlim_side, xlim_center + xlim_side)
           plot.set_ylim(top=max(ylim_height))
     
+        title = 'קואליציות' if hebrew else 'Coalitions'
+        if subtitle != '':
+            title += ' - ' + subtitle
         if hebrew:
-            title = bidialg.get_display('קואליציות')
-        else:
-            title = 'Coalitions'
+            title = bidialg.get_display(title)
     
         fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
         if fe.house_effects_model is not None:
