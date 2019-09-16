@@ -69,7 +69,9 @@ class ElectionDynamicsModel(pm.Model):
         if len(self.polls) - len(self.filtered_polls) > 0:
           print ("Some polls were filtered out. Provided polls: %d, filtered: %d, final total: %d" % 
              (len(self.polls), len(self.polls) - len(self.filtered_polls), len(self.filtered_polls)))
-        
+        else:
+          print ("Using all %d provided polls." % len(self.polls))
+
         self.first_poll_day =  min(p.end_day for p in self.filtered_polls)
         
         # The base polls model. House-effects models
