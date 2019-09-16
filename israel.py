@@ -105,10 +105,13 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
             cur_agreements = [ sa for sa in fe.config['surplus_agreements']
                 if 'since' not in sa or self.day_index(sa['since']) >= day ]
             for agreement in cur_agreements:
-              party1 = fe.party_ids.index(agreement['name1'])
-              party2 = fe.party_ids.index(agreement['name2'])
-              surplus_matrices[day, party1, party2] = 1
-              surplus_matrices[day, party2, party2] = 0
+              name1 = agreement['name1']
+              name2 = agreement['name2']
+              if name1 in fe.party_ids and name2 in fe.party_ids:
+                party1 = fe.party_ids.index(name1)
+                party2 = fe.party_ids.index(name2)
+                surplus_matrices[day, party1, party2] = 1
+                surplus_matrices[day, party2, party2] = 0
             
         return surplus_matrices
     
