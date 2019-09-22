@@ -143,7 +143,10 @@ class Configuration:
                       df[k] = df.eval('%s = %s' % (k, v['eval']))[k]
                       if 'dtype' in v:
                         df[k] = df[k].astype(v['dtype'])
-
+                    elif 'concat' in v:
+                      delimiter = v['delimiter'] if 'delimiter' in v else ' '
+                      concat_cols = v['concat']
+                      df[k] = df[concat_cols].apply(lambda row: delimiter.join(row.values.astype(str)), axis=1)
                     if 'fillna' in v:
                       df[k] = df[k].fillna(v['fillna'])
                   except Exception as e:
