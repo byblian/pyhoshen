@@ -5,6 +5,7 @@ import json
 import io
 import os
 import os.path
+import sys
 
 class Configuration:
     def __init__(self, config):
@@ -107,15 +108,6 @@ class Configuration:
             if 'select_rows' in data:
                 df = df.loc[data['select_rows']]
     
-            if 'index' in data:
-                if 'groupby' in data:
-                    df = df.groupby(data['index']).sum().reset_index()
-                if type(data['index']) is list and all(i in df.columns for i in data['index']) or data['index'] in df.columns:
-                    df = df.set_index(data['index'])
-                else:
-                    df.index.name = data['index']
-                    df[data['index']] = df.index
-    
             if 'filter' in data:
                 df = df.loc[df.eval(data['filter'])]
     
@@ -124,6 +116,7 @@ class Configuration:
                     df = df.dropna(how=data['dropna'],subset=data['dropna_subset'])
                 else:
                     df = df.dropna(how=data['dropna'])
+                    
             if 'output' in data:
                 for k, v in data['output'].items():
                   try:
@@ -147,17 +140,29 @@ class Configuration:
                       delimiter = v['delimiter'] if 'delimiter' in v else ' '
                       concat_cols = v['concat']
                       df[k] = df[concat_cols].apply(lambda row: delimiter.join(row.values.astype(str)), axis=1)
+                      
                     if 'fillna' in v:
                       df[k] = df[k].fillna(v['fillna'])
+                      
                   except Exception as e:
-                    import sys
-                    raise type(e)(str(e) + ' while handling column %s' % k).with_traceback(sys.exc_info()[2])
+                    raise type(e)(str(e) + ' while handling column %s in dataset %s' % (k, dataset)).with_traceback(sys.exc_info()[2])
 
                 output = list(k for k, v in data['output'].items() if 'drop' not in v or not v['drop'])
             else:
                 output = df.columns
-            df = df[[f for f in output if f != df.index.name]]
-#            print (dataset, df.index.name, data['index'])
+            df = df[[f for f in output]]
+
+            if 'index' in data:
+                if 'groupby' in data:
+                    df = df.groupby(data['index']).sum().reset_index()
+                if type(data['index']) is list and all(i in df.columns for i in data['index']) or data['index'] in df.columns:
+                    df = df.set_index(data['index'])
+                else:
+                    df.index.name = data['index']
+                    df[data['index']] = df.index
+    
+            df = df[[f for f in output if f not in df.index.names]]
+      
             if 'index' in data and df.index.name != data['index']:
                 if type(data['index']) is not list and data['index'] in df.columns:
                     df = df.set_index(data['index'])
