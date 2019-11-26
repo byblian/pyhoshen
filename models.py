@@ -375,7 +375,8 @@ class ElectionForecastModel(pm.Model):
                  polls_since=None, min_poll_days=None,
                  adjacent_day_fn=-2., join_composites=False,
                  votes=None, chol=None, after_polls_chol=None,
-                 election_day_chol=None, *args, **kwargs):
+                 election_day_chol=None, allow_after_election_day=False,
+                 *args, **kwargs):
 
         super(ElectionForecastModel, self).__init__(*args, **kwargs)
         
@@ -401,7 +402,8 @@ class ElectionForecastModel(pm.Model):
             min_polls_per_pollster=min_polls_per_pollster,
             adjacent_day_fn=adjacent_day_fn, join_composites=join_composites,
             votes=votes, chol=chol, after_polls_chol=after_polls_chol,
-            election_day_chol=election_day_chol)
+            election_day_chol=election_day_chol,
+            allow_after_election_day=allow_after_election_day)
                
         self.support = pm.Deterministic('support', self.forecast_model.support)
 
@@ -409,7 +411,8 @@ class ElectionForecastModel(pm.Model):
                    eta, min_polls_per_pollster, house_effects_model,
                    extra_avg_days, max_poll_days, polls_since, min_poll_days,
                    adjacent_day_fn, join_composites,
-                   votes, chol, after_polls_chol, election_day_chol):
+                   votes, chol, after_polls_chol, election_day_chol,
+                   allow_after_election_day):
         cycle_config = self.config['cycles'][cycle]
 
         parties = cycle_config['parties']
@@ -434,7 +437,10 @@ class ElectionForecastModel(pm.Model):
         # Use the election day if the forecast day was not provided or is later than election day
         # (to allow reasonable use of forecast today + 5 days)
         election_day = datetime.datetime.strptime(cycle_config['election_day'], '%d/%m/%Y').date()
-        forecast_day = election_day if forecast_day is None else min(forecast_day, election_day)
+        if forecast_day is None:
+          forecast_day = election_day
+        elif not allow_after_election_day:
+          forecast_day = min(forecast_day, election_day)
 
         # Multiple poll datasets are not yet supported at this
         # interface so use the first dataset ('-0')
