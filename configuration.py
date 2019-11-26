@@ -237,8 +237,11 @@ class Configuration:
                     #print (new_columns)
                     new_rows = []
                     for i, row in df.iterrows():
-                      if len(row['pollster']) == 0:
-                          break
+                      try:
+                        if len(row['pollster']) == 0:
+                            break
+                      except:
+                        break
                       mands = {}
                       percs = {}
                       for p in parties:
@@ -250,21 +253,22 @@ class Configuration:
                           percs[p] = np.float64(row[p][:-1])/100
                         elif len(row[p]) > 0:
                           raise ValueError("invalid row element at row %d: %s" % (i, row[p]))
-                      assert round(sum(mands.values()),3) >= total_seats, "not enough mandates in row %d, sum = %.3f: %s" % (i, sum(mands.values()), str(mands))
-                      if others_col in mands or others_col in percs:
-                        others = 0
-                      elif len(percs) > 0 or sum(mands.values()) > total_seats:
-                        others = others_min
-                      else:
-                        others = others_full
-                      if sum(mands.values()) > total_seats:
-                        too_low = [p for p, m in mands.items() if m/total_seats < threshold]
-                        percs.update({p: np.float64(mands[p])/total_seats for p in too_low })
-                        for p in too_low:
-                          del mands[p]
-                      normalize_to = 1.0 - sum(percs.values()) - others
-                    #  print (i, sum(mands.values()), normalize_to, sum(percs.values()))
-                      percs.update({ p: m * normalize_to / total_seats for p, m in mands.items() })
+                      if sum(percs.values()) < 0.95:
+                        assert round(sum(mands.values()),3) >= total_seats, "not enough mandates in row %d, sum = %.3f: %s" % (i, sum(mands.values()), str(mands))
+                        if others_col in mands or others_col in percs:
+                          others = 0
+                        elif len(percs) > 0 or sum(mands.values()) > total_seats:
+                          others = others_min
+                        else:
+                          others = others_full
+                        if sum(mands.values()) > total_seats:
+                          too_low = [p for p, m in mands.items() if m/total_seats < threshold]
+                          percs.update({p: np.float64(mands[p])/total_seats for p in too_low })
+                          for p in too_low:
+                            del mands[p]
+                        normalize_to = 1.0 - sum(percs.values()) - others
+                      #  print (i, sum(mands.values()), normalize_to, sum(percs.values()))
+                        percs.update({ p: m * normalize_to / total_seats for p, m in mands.items() })
                       num_days = max(1, row['num_days'])
                       for p in parties:
                           if p != others_col and p not in percs:
