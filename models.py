@@ -55,6 +55,7 @@ class ElectionDynamicsModel(pm.Model):
         
         self.num_pollsters_in_model = 0
         self.pollster_mapping = {}
+        self.has_official = False
     
         for pollster_id, count in polls_per_pollster.items():
             if count >= self.min_polls_per_pollster:
@@ -62,15 +63,23 @@ class ElectionDynamicsModel(pm.Model):
                 self.num_pollsters_in_model += 1
             else:
                 self.pollster_mapping[pollster_id] = None
-        
+
+        official_pollster = self.polls.pollster_ids.index('Official')
+        if official_pollster != -1:
+          self.pollster_mapping[official_pollster] = self.num_pollsters_in_model
+          self.num_pollsters_in_model += 1
+          self.has_official = True
+
         self.filtered_polls = [ p for p in self.polls 
-                               if polls_per_pollster[p.pollster_id] >= self.min_polls_per_pollster ]
+                               if self.pollster_mapping[p.pollster_id] is not None ]
         
         if len(self.polls) - len(self.filtered_polls) > 0:
           print ("Some polls were filtered out. Provided polls: %d, filtered: %d, final total: %d" % 
              (len(self.polls), len(self.polls) - len(self.filtered_polls), len(self.filtered_polls)))
         else:
           print ("Using all %d provided polls." % len(self.polls))
+
+        print ("Pollsters used: %s" % ', '.join(self.polls.pollster_ids[k] for k, v in self.pollster_mapping.items() if v is not None))
 
         self.first_poll_day =  min(p.end_day for p in self.filtered_polls)
         
@@ -169,6 +178,8 @@ class ElectionDynamicsModel(pm.Model):
         
     def create_house_effects(self, house_effects_model, pollster_sigma_beta = 0.05):
         # Create the appropriate house-effects model, if needed.
+        num_pollsters = self.num_pollsters_in_model
+
         if house_effects_model == 'raw-polls':
             return self.mus
 
@@ -178,12 +189,17 @@ class ElectionDynamicsModel(pm.Model):
                 # a Gamma variable per-pollster per-party
                 self.pollster_house_effects_a_ = pm.Gamma(
                     'pollster_house_effects_a_', 1, 0.05,
-                    shape=[self.num_pollsters_in_model - 1, self.num_parties],
-                    testval=tt.ones([self.num_pollsters_in_model - 1, self.num_parties]))
-                self.pollster_house_effects_a = pm.Deterministic(
-                    'pollster_house_effects_a', 
-                    tt.concatenate([self.pollster_house_effects_a_, 
-                                    self.num_pollsters_in_model - self.pollster_house_effects_a_.sum(axis=0, keepdims=True)]))
+                    shape=[num_pollsters - 1, self.num_parties],
+                    testval=tt.ones([num_pollsters - 1, self.num_parties]))
+                if self.has_official:
+                  self.pollster_house_effects_a = pm.Deterministic(
+                      'pollster_house_effects_a', 
+                      tt.concatenate([self.pollster_house_effects_a_, np.ones((1, self.num_parties)) ]))
+                else:
+                  self.pollster_house_effects_a = pm.Deterministic(
+                      'pollster_house_effects_a', 
+                      tt.concatenate([self.pollster_house_effects_a_, 
+                                      num_pollsters - self.pollster_house_effects_a_.sum(axis=0, keepdims=True) ]))
             else:
                 self.pollster_house_effects_a = pm.Deterministic(
                     'pollster_house_effects_a', tt.ones([self.num_pollsters_in_model, self.num_parties]))
@@ -197,9 +213,14 @@ class ElectionDynamicsModel(pm.Model):
                 self.pollster_house_effects_b_ = pm.Deterministic(
                     'pollster_house_effects_b_', 
                     tt.concatenate([self.pollster_house_effects_b__, -self.pollster_house_effects_b__.sum(axis=1, keepdims=True)], axis=1))
-                self.pollster_house_effects_b = pm.Deterministic(
-                    'pollster_house_effects_b', 
-                    tt.concatenate([self.pollster_house_effects_b_, -self.pollster_house_effects_b_.sum(axis=0, keepdims=True)]))
+                if self.has_official:
+                  self.pollster_house_effects_b = pm.Deterministic(
+                      'pollster_house_effects_b', 
+                      tt.concatenate([self.pollster_house_effects_b_, np.zeros((1, self.num_parties))]))
+                else:
+                  self.pollster_house_effects_b = pm.Deterministic(
+                      'pollster_house_effects_b', 
+                      tt.concatenate([self.pollster_house_effects_b_, -self.pollster_house_effects_b_.sum(axis=0, keepdims=True)]))
             else:
                 self.pollster_house_effects_b= pm.Deterministic(
                     'pollster_house_effects_b', tt.zeros([self.num_pollsters_in_model, self.num_parties]))
