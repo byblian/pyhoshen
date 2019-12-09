@@ -65,7 +65,7 @@ class ElectionDynamicsModel(pm.Model):
                 self.pollster_mapping[pollster_id] = None
 
         if 'Official' in self.polls.pollster_ids:
-		  official_pollster = self.polls.pollster_ids.index('Official')
+          official_pollster = self.polls.pollster_ids.index('Official')
           self.pollster_mapping[official_pollster] = self.num_pollsters_in_model
           self.num_pollsters_in_model += 1
           self.has_official = True
