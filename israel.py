@@ -26,7 +26,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
     def __init__(self, config, *args, **kwargs):
         super(IsraeliElectionForecastModel, self).__init__(config, *args, **kwargs)
         
-        self.generated_by = 'Generated using pyHoshen © 2019\n'
+        self.generated_by = 'Generated using pyHoshen © 2019 - 2020\n'
 
     def create_logo(self):
       from PIL import Image, ImageDraw, ImageFont
@@ -48,7 +48,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
       draw.text((26,29), '@pyHoshen', (0,0,0), font=font)
       logo.paste(github_im.resize((24,24)), (0,48))
       draw.text((26,53), 'https://github.com/byblian/pyhoshen', (0,0,0), font=font)
-      draw.text((18,0), 'Generated using pyHoshen © 2019', (0,0,0), font=font)
+      draw.text((18,0), 'Generated using pyHoshen © 2019 - 2020', (0,0,0), font=font)
       
       return logo
 
@@ -346,7 +346,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         fig.text(.5, 1.05, title, ha='center', fontsize='xx-large')
         if fe.house_effects_model is not None:
             fig.text(.5, 1., self.house_effects_model_title(hebrew), ha='center', fontsize='small')
-        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 100, fig.bbox.ymax - 100, zorder=1000)
+        fig.figimage(self.create_logo(), fig.bbox.xmax / 2 + 50, fig.bbox.ymax - 100, zorder=1000)
 
     def plot_coalitions(self, bader_ofer, coalitions=None, day=0, min_mandates_for_coalition=61, stable_mandates_for_coalition=65, hebrew=True, coalitions_shape=None, subtitle=''):
         """
@@ -522,7 +522,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
           plots += [ax]
           fig.text(.5, 1.05, bidialg.get_display('הטיית הסוקרים') if hebrew else 'House Effects', 
                    ha='center', fontsize='xx-large')
-          fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
+          fig.text(.5, .05, 'Generated using pyHoshen © 2019 - 2020', ha='center')
 
     def plot_party_support_evolution_graphs(self, samples, mbo = None, burn=None, hebrew = True):
         """
@@ -695,5 +695,5 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         fig.set_facecolor('white')
         fig.text(.5, 1.05, bidialg.get_display('מטריצת המתאמים') if hebrew else 'Correlation Matrix', 
                  ha='center', fontsize='xx-large')
-        fig.text(.5, .05, 'Generated using pyHoshen © 2019', ha='center')
+        fig.text(.5, .05, 'Generated using pyHoshen © 2019 - 2020', ha='center')
 
