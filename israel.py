@@ -6,6 +6,7 @@ Supporting analysis functions of Israeli Election results.
 from . import models
 from . import utils
 import theano
+from theano.scan.utils import until as theano_scan_until
 import theano.tensor as tt
 from theano.ifelse import ifelse
 import numpy as np
@@ -26,7 +27,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
     def __init__(self, config, *args, **kwargs):
         super(IsraeliElectionForecastModel, self).__init__(config, *args, **kwargs)
         
-        self.generated_by = 'Generated using pyHoshen © 2019 - 2021\n'
+        self.generated_by = 'Generated using pyHoshen © 2019 - 2022\n'
 
     def create_logo(self):
       from PIL import Image, ImageDraw, ImageFont
@@ -48,7 +49,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
       draw.text((26,29), '@pyHoshen', (0,0,0), font=font)
       logo.paste(github_im.resize((24,24)), (0,48))
       draw.text((26,53), 'https://github.com/byblian/pyhoshen', (0,0,0), font=font)
-      draw.text((18,0), 'Generated using pyHoshen © 2019 - 2021', (0,0,0), font=font)
+      draw.text((18,0), 'Generated using pyHoshen © 2019 - 2022', (0,0,0), font=font)
       
       return logo
 
@@ -133,7 +134,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         
         def bader_ofer_fn__(cur_seats, prior, votes):
             new_seats = ifelse(tt.lt(cur_seats, num_seats), bader_ofer_fn___(prior, votes), prior)
-            return (cur_seats + 1, new_seats.astype("int64")), theano.scan_module.until(tt.ge(cur_seats, num_seats))
+            return (cur_seats + 1, new_seats.astype("int64")), theano_scan_until(tt.ge(cur_seats, num_seats))
         
         # iterate a particular day of a sample, and compute the bader-ofer allocation
         def bader_ofer_fn_(seats, votes, surplus_matrix):
