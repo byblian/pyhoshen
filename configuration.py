@@ -52,8 +52,9 @@ class Configuration:
             if 'type' in data:
                 if data['type'] == 'google-sheets':
                     import gspread
-                    from oauth2client.client import GoogleCredentials
-                    gc = gspread.authorize(GoogleCredentials.get_application_default())                    
+                    from google.auth import default
+                    creds, _ = default()
+                    gc = gspread.authorize(creds)
                     gs = gc.open_by_key(data['key'])
                     df = pd.DataFrame(gs.worksheet(data['worksheet']).get_all_records())
                     if 'parse_dates' in data:
@@ -242,6 +243,7 @@ class Configuration:
                             break
                       except:
                         break
+                      row_name = "row %d, pollster %s, date %s" % (i, row['pollster'], str(row['start_date']))
                       mands = {}
                       percs = {}
                       for p in parties:
@@ -252,9 +254,9 @@ class Configuration:
                         elif row[p].endswith('%'):
                           percs[p] = np.float64(row[p][:-1])/100
                         elif len(row[p]) > 0:
-                          raise ValueError("invalid row element at row %d: %s" % (i, row[p]))
+                          raise ValueError("invalid row element at %s: %s" % (row_name, row[p]))
                       if sum(percs.values()) < 0.95:
-                        assert round(sum(mands.values()),3) >= total_seats, "not enough mandates in row %d, sum = %.3f: %s" % (i, sum(mands.values()), str(mands))
+                        assert round(sum(mands.values()),3) >= total_seats, "not enough mandates in %s, sum = %.3f: %s" % (row_name, sum(mands.values()), str(mands))
                         if others_col in mands or others_col in percs:
                           others = 0
                         elif len(percs) > 0 or sum(mands.values()) > total_seats:
@@ -269,7 +271,13 @@ class Configuration:
                         normalize_to = 1.0 - sum(percs.values()) - others
                       #  print (i, sum(mands.values()), normalize_to, sum(percs.values()))
                         percs.update({ p: m * normalize_to / total_seats for p, m in mands.items() })
-                      num_days = max(1, row['num_days'])
+                      num_days = row['num_days']
+                      if type(num_days) is str:
+                          print("invalid num_days at %s, using 1 instead: %s" % (row_name, num_days))
+                          num_days = 1
+                      elif num_days <= 0:
+                          print("non-positive num_days at %s, using 1 instead: %s" % (row_name, num_days))
+                          num_days = 1
                       for p in parties:
                           if p != others_col and p not in percs:
                               if p in party_inits and row['start_date'] <= party_inits[p]:
