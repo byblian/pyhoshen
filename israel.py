@@ -192,15 +192,21 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         return compute_bader_ofer(initial_seats, passed_votes,
             surpluses * np.ones([ndays, nparties, nparties], dtype='int64'))
         
-    def get_least_square_sum_seats(self, bader_ofer, day=0):
+    def compute_trace_bader_ofer_segmented(self, trace, surpluses = None, threshold = None, segment_size=1000):
+        traces = np.split(trace, [i * segment_size for i in range(trace.shape[0] // segment_size) if i is not 0])
+        return np.concatenate([ self.compute_trace_bader_ofer(t, surpluses, threshold) for t in traces ], axis=0)
+
+    def get_least_square_sum_seats(self, bader_ofer, day=0, segment_size=1000):
         """
         Determine the sample whose average distance in seats to the other samples
         is most minimal, distance computed as the square root of sum of squares
         of the seats of the parties.
         """
         bo_plot = bader_ofer.transpose(1,2,0)[day]
-        bo_sqrsum = np.sqrt(np.sum((bo_plot[:,:,None] - bo_plot[:,None,:]) ** 2, axis=0)).mean(axis=0)
-        return bader_ofer[bo_sqrsum.argmin()][day]
+        bo_plots_a = np.split(bo_plot[:,:,None], [ i * segment_size for i in range(bo_plot.shape[1] // segment_size) if i != 0 ], axis=1)
+        bo_plots_b = np.split(bo_plot[:,None,:], [ i * segment_size for i in range(bo_plot.shape[1] // segment_size) if i != 0 ], axis=2)
+        bo_sqrsums = [ np.concatenate([ np.sqrt(np.sum((bpa - bpb) ** 2, axis=0)).sum(axis=0) for bpb in bo_plots_b ]) for bpa in bo_plots_a ]
+        return bader_ofer[np.stack(bo_sqrsums).sum(axis=0).argmin()][0]
     
     def compute_interval(self, values, alpha=0.95):    
         avg = values.mean()
@@ -219,7 +225,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         
         return tuple(convert_interval(i) for i in self.compute_interval(mandates, alpha))
       
-    def plot_mandates(self, bader_ofer, max_bo=None, day=0, hebrew=True, subtitle=''):
+    def plot_mandates(self, bader_ofer, max_bo=None, day=0, hebrew=True, subtitle='', segment_size=1000):
         """
         Plot the resulting mandates of the parties and their distributions.
         This is the bar graph most often seen in poll results.
@@ -233,7 +239,7 @@ class IsraeliElectionForecastModel(models.ElectionForecastModel):
         bo_plot = bader_ofer.transpose(1,2,0)[day]
     
         if max_bo is None:
-            max_bo = self.get_least_square_sum_seats(bader_ofer, day)
+            max_bo = self.get_least_square_sum_seats(bader_ofer, day, segment_size=segment_size)
 
         num_passed_parties = len(np.where(max_bo > 0)[0])
         passed_parties = max_bo.argsort()[::-1]
